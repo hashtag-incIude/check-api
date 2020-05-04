@@ -12,7 +12,7 @@ module TeamDuplication
       @original_team = t
       @cloned_versions = []
       begin
-        ActiveRecord::Base.transaction do
+        ApplicationRecord.transaction do
           Version.skip_callback(:create, :after, :increment_project_association_annotations_count)
           team = t.deep_clone include: [ :sources, { projects: [ :project_sources, { project_medias: [ :project_media_projects, :source_relationships, versions: { if: lambda{|v| v.associated_id.blank? }}]}]}, :team_users, :contacts, :team_tasks ] do |original, copy|
             @cloned_versions << copy if original.is_a?(Version)

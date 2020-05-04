@@ -1,4 +1,4 @@
-class Relationship < ActiveRecord::Base
+class Relationship < ApplicationRecord
   include CheckElasticSearch
 
   attr_accessor :current_id, :is_being_copied

@@ -1,4 +1,4 @@
-class DynamicAnnotation::Field < ActiveRecord::Base
+class DynamicAnnotation::Field < ApplicationRecord
   include CheckElasticSearch
 
   attr_accessor :disable_es_callbacks

@@ -1,4 +1,4 @@
-class Team < ActiveRecord::Base
+class Team < ApplicationRecord
   after_create :create_team_partition, :add_user_to_team
 
   before_destroy :delete_created_bots

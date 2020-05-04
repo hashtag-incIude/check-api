@@ -1,6 +1,6 @@
 require_relative '../test_helper'
 
-class SampleModel < ActiveRecord::Base
+class SampleModel < ApplicationRecord
   has_annotations
 end
 

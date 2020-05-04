@@ -42,14 +42,14 @@ module TeamPrivate
   end
 
   def create_team_partition
-    if ActiveRecord::Base.connection.schema_exists?('versions_partitions')
-      ActiveRecord::Base.connection_pool.with_connection do
+    if ApplicationRecord.connection.schema_exists?('versions_partitions')
+      ApplicationRecord.connection_pool.with_connection do
         partition = "\"versions_partitions\".\"p#{self.id}\""
-        ActiveRecord::Base.connection.execute("CREATE TABLE #{partition} (CHECK(team_id = #{self.id})) INHERITS (versions)")
-        ActiveRecord::Base.connection.execute("CREATE INDEX version_field_p#{self.id} ON #{partition} (version_field_name(event_type, object_after))")
-        ActiveRecord::Base.connection.execute("CREATE INDEX version_annotation_type_p#{self.id} ON #{partition} (version_annotation_type(event_type, object_after))")
+        ApplicationRecord.connection.execute("CREATE TABLE #{partition} (CHECK(team_id = #{self.id})) INHERITS (versions)")
+        ApplicationRecord.connection.execute("CREATE INDEX version_field_p#{self.id} ON #{partition} (version_field_name(event_type, object_after))")
+        ApplicationRecord.connection.execute("CREATE INDEX version_annotation_type_p#{self.id} ON #{partition} (version_annotation_type(event_type, object_after))")
         [[:item_type, :item_id], [:event], [:whodunnit], [:event_type], [:team_id], [:associated_type, :associated_id]].each do |columns|
-          ActiveRecord::Base.connection.add_index(partition, columns, name: "version_#{columns.join('_')}_p#{self.id}")
+          ApplicationRecord.connection.add_index(partition, columns, name: "version_#{columns.join('_')}_p#{self.id}")
         end
       end
     end

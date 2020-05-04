@@ -1,4 +1,4 @@
-class Assignment < ActiveRecord::Base
+class Assignment < ApplicationRecord
   attr_accessor :propagate_in_foreground
 
   belongs_to :assigned, polymorphic: true

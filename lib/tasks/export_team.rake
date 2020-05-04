@@ -94,7 +94,7 @@ def users_outside_team_query(table, field = '*')
      #{table}.id NOT IN (#{get_ids('team_users', 'user_id')})"
   return query unless field == '*'
   temp_table = "users_outside#{@id}"
-  conn = ActiveRecord::Base.connection
+  conn = ApplicationRecord.connection
   conn.execute("CREATE TEMP TABLE #{temp_table} AS #{query}")
   conn.execute("UPDATE #{temp_table} SET name = 'Anonymous', login = 'Anonymous', token = 'invalid_token', email = NULL, source_id = NULL")
   "SELECT #{temp_table}.#{field}
@@ -180,18 +180,18 @@ end
 
 def get_dynamic_annotation_types
   query = "SELECT DISTINCT(annotation_type) FROM dynamic_annotation_annotation_types"
-  @dynamic_types ||= ActiveRecord::Base.connection.execute(query).values.map {|v| "'#{v[0]}'" }
+  @dynamic_types ||= ApplicationRecord.connection.execute(query).values.map {|v| "'#{v[0]}'" }
 end
 
 def get_annotation_types
   query = "SELECT DISTINCT(annotation_type) FROM annotations"
-  @annotation_types ||= ActiveRecord::Base.connection.execute(query).values.map {|v| "'#{v[0]}'" }
+  @annotation_types ||= ApplicationRecord.connection.execute(query).values.map {|v| "'#{v[0]}'" }
 end
 
 def get_ids(table, field = 'id')
   query = send("#{table}_query", table, field)
   if instance_variable_get("@#{table}_#{field}s").nil?
-    ids = ActiveRecord::Base.connection.execute(query).values.map {|v| v[0] }.concat(['-1']).join(',')
+    ids = ApplicationRecord.connection.execute(query).values.map {|v| v[0] }.concat(['-1']).join(',')
     instance_variable_set("@#{table}_#{field}s", ids)
   end
   instance_variable_get("@#{table}_#{field}s")
@@ -199,7 +199,7 @@ end
 
 def count(query)
   count_query = query.gsub(/SELECT (.*) FROM/, 'SELECT COUNT(\1) FROM')
-  values = ActiveRecord::Base.connection.execute(count_query).values
+  values = ApplicationRecord.connection.execute(count_query).values
   values.empty? ? 0 : values.first[0].to_i
 end
 
@@ -240,7 +240,7 @@ def copy_to_file(select_query, filename, table)
       print "#{offset}/#{total}\r"
       $stdout.flush
       csv = []
-      conn = ActiveRecord::Base.connection.raw_connection
+      conn = ApplicationRecord.connection.raw_connection
       conn.copy_data(query) do
         while row = conn.get_copy_data
           csv.push(row)
@@ -290,7 +290,7 @@ namespace :check do
     email = args.email
     exceptions = args.except ? args.except.split(':') : []
     puts "Skipping: #{exceptions}" unless exceptions.empty?
-    tables = ActiveRecord::Base.connection.tables - exceptions
+    tables = ApplicationRecord.connection.tables - exceptions
     puts "Dumping #{tables.size} tables."
     @files ||= {}
     tables.each do |table|
@@ -302,7 +302,7 @@ namespace :check do
           else
             copy_to_file(send(query, table), table, table)
           end
-            ActiveRecord::Base.connection.execute("DROP TABLE IF EXISTS users_outside#{@id};") if table == 'users'
+            ApplicationRecord.connection.execute("DROP TABLE IF EXISTS users_outside#{@id};") if table == 'users'
         else
           puts "Missing query to copy #{table}"
         end
@@ -329,7 +329,7 @@ namespace :check do
   desc "import team files to database"
   task :import_team, [:folder_path] => :environment do |_t, args|
     @path = args.folder_path
-    conn = ActiveRecord::Base.connection
+    conn = ApplicationRecord.connection
     tables = conn.tables
     Benchmark.bm(40) do |bm|
       Dir.foreach(args.folder_path).each do |filename|

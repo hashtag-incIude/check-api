@@ -1,4 +1,4 @@
-class TeamTask < ActiveRecord::Base
+class TeamTask < ApplicationRecord
   include ErrorNotification
 
   attr_accessor :skip_update_media_status, :keep_resolved_tasks
@@ -262,7 +262,7 @@ class TeamTask < ActiveRecord::Base
       AND annotations.annotated_id = pm.id")
     .joins("INNER JOIN annotations s2 ON s2.annotation_type = 'verification_status'
       AND s2.annotated_id = pm.id")
-    .joins(ActiveRecord::Base.send(:sanitize_sql_array,
+    .joins(ApplicationRecord.send(:sanitize_sql_array,
       ["INNER JOIN dynamic_annotation_fields f2 ON f2.field_name = 'verification_status_status'
         AND f2.value IN (?)
         AND f2.annotation_id = s2.id",
@@ -274,7 +274,7 @@ class TeamTask < ActiveRecord::Base
     ProjectMedia.where(condition)
     .joins("INNER JOIN annotations s2 ON s2.annotation_type = 'verification_status'
       AND s2.annotated_id = project_medias.id")
-    .joins(ActiveRecord::Base.send(:sanitize_sql_array,
+    .joins(ApplicationRecord.send(:sanitize_sql_array,
       ["INNER JOIN dynamic_annotation_fields f2 ON f2.field_name = 'verification_status_status'
         AND f2.value IN (?)
         AND f2.annotation_id = s2.id",

@@ -1,4 +1,4 @@
-class Source < ActiveRecord::Base
+class Source < ApplicationRecord
   attr_accessor :disable_es_callbacks
 
   include HasImage

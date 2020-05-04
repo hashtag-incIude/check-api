@@ -1,4 +1,4 @@
-class ClaimSource < ActiveRecord::Base
+class ClaimSource < ApplicationRecord
 
   belongs_to :media
   belongs_to :source

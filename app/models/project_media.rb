@@ -1,4 +1,4 @@
-class ProjectMedia < ActiveRecord::Base
+class ProjectMedia < ApplicationRecord
   attr_accessor :quote, :quote_attributions, :file, :media_type, :previous_project_id, :set_annotation, :set_tasks_responses, :cached_permissions, :is_being_created, :related_to_id, :relationship, :copy_to_project_id, :skip_rules, :add_to_project_id, :remove_from_project_id
 
   include ProjectAssociation

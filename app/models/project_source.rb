@@ -1,4 +1,4 @@
-class ProjectSource < ActiveRecord::Base
+class ProjectSource < ApplicationRecord
 
   attr_accessor :name
 
