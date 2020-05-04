@@ -3,7 +3,7 @@ module Ah
     module Greenday
       module V1
         class BaseController < ::Api::V1::BaseApiController
-          skip_before_filter :authenticate_from_token!
+          skip_before_action :authenticate_from_token!
 
           before_action :check_if_options_request
           before_action :authenticate_montage_user, unless: proc { request.options? }

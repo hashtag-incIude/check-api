@@ -4,7 +4,7 @@ class Project < ApplicationRecord
   include DestroyLater
   include AssignmentConcern
 
-  has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }, class_name: 'Version'
+  has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }, versions: { class_name: 'Version' }
   belongs_to :user
   belongs_to :team
   has_many :project_sources, dependent: :destroy

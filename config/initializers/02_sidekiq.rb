@@ -27,3 +27,5 @@ if File.exist?(file)
     config.redis = redis_config
   end
 end
+
+Sidekiq::Extensions.enable_delay!

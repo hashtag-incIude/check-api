@@ -140,7 +140,7 @@ class Bot::Slack < BotUser
         [events].flatten.each do |event|
           params = {}
           params[:if] = options[:if] if options.has_key?(:if)
-          send("after_#{event}", "call_slack_api_#{options[:endpoint]}", params)
+          send("after_#{event}".to_sym, "call_slack_api_#{options[:endpoint]}".to_sym, params)
         end
       end
 

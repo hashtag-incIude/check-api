@@ -5,7 +5,7 @@ module Api
     class GraphqlController < Api::V1::BaseApiController
       include GraphqlDoc
 
-      skip_before_filter :authenticate_from_token!
+      skip_before_action :authenticate_from_token!
 
       before_action :start_apollo_if_needed, only: [:create, :batch]
       before_action :authenticate_graphql_user, only: [:create, :batch]
@@ -45,18 +45,18 @@ module Api
 
       def parse_graphql_result
         context = { ability: @ability, file: request.params[:file] }
-        begin
+        # begin
           result = yield(context)
           render json: result
-        rescue ActiveRecord::RecordInvalid, RuntimeError, ActiveRecord::RecordNotUnique, NameError, GraphQL::Batch::NestedError => e
-          render json: parse_json_exception(e), status: 400
-        rescue CheckPermissions::AccessDenied => e
-          render json: format_error_message(e), status: 403
-        rescue ActiveRecord::RecordNotFound => e
-          render json: format_error_message(e), status: 404
-        rescue ActiveRecord::StaleObjectError => e
-          render json: format_error_message(e), status: 409
-        end
+        # rescue ActiveRecord::RecordInvalid, RuntimeError, ActiveRecord::RecordNotUnique, NameError => e
+        #   render json: parse_json_exception(e), status: 400
+        # rescue CheckPermissions::AccessDenied => e
+        #   render json: format_error_message(e), status: 403
+        # rescue ActiveRecord::RecordNotFound => e
+        #   render json: format_error_message(e), status: 404
+        # rescue ActiveRecord::StaleObjectError => e
+        #   render json: format_error_message(e), status: 409
+        # end
       end
 
       def prepare_query_variables(vars)
@@ -68,7 +68,7 @@ module Api
       # If the request wasn't `Content-Type: application/json`, parse the variables
       def ensure_hash(variables_param)
         return {} if variables_param.blank?
-        variables_param.kind_of?(Hash) ? variables_param : JSON.parse(variables_param)
+        variables_param.kind_of?(Hash) ? variables_param : (variables_param.kind_of?(ActionController::Parameters) ? variables_param.permit!.to_h : JSON.parse(variables_param))
       end
 
       def parse_json_exception(e)

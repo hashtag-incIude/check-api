@@ -20,6 +20,7 @@ class CustomFailure < Devise::FailureApp
 end
 
 OmniAuth.config.logger = Rails.logger
+OmniAuth.config.allowed_request_methods = [:post, :get]
 
 Devise.setup do |config|
   config.warden do |manager|

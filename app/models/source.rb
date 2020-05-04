@@ -7,7 +7,7 @@ class Source < ApplicationRecord
   include ValidationsHelper
   include CustomLock
 
-  has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }, class_name: 'Version'
+  has_paper_trail on: [:create, :update], if: proc { |_x| User.current.present? }, versions: { class_name: 'Version' }
   has_many :project_sources
   has_many :account_sources, dependent: :destroy
   has_many :projects, through: :project_sources
