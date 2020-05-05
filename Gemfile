@@ -11,7 +11,6 @@ group :test do
   gem 'minitest-hooks'
   gem 'simplecov', '0.13.0', require: false
   gem 'simplecov-console', require: false
-  gem 'test_after_commit'
   gem 'minitest-retry'
   gem 'webmock'
   gem 'mocha'
