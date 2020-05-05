@@ -12,9 +12,9 @@ class Api::V1::AdminController < Api::V1::BaseApiController
       project.set_social_publishing(setting)
       project.skip_check_ability = true
       project.save!
-      render text: I18n.t(:auto_publisher_added_to_project, project: project.title, provider: provider.capitalize)
+      render plain: I18n.t(:auto_publisher_added_to_project, project: project.title, provider: provider.capitalize)
     else
-      render text: I18n.t(:invalid_token), status: 401
+      render plain: I18n.t(:invalid_token), status: 401
     end
   end
 
@@ -48,9 +48,9 @@ class Api::V1::AdminController < Api::V1::BaseApiController
       }
       body = SmoochApi::IntegrationCreate.new(params)
       api_instance.create_integration(app_id, body)
-      render text: I18n.t(:smooch_twitter_success)
+      render plain: I18n.t(:smooch_twitter_success)
     else
-      render text: I18n.t(:invalid_token), status: 401
+      render plain: I18n.t(:invalid_token), status: 401
     end
   end
 end

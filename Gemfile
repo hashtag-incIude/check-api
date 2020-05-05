@@ -131,5 +131,5 @@ gem 'honeycomb-beeline'
 gem 'bumbler', require: false
 gem 'swagger-docs'
 gem 'ruby-progressbar', '~> 1.10', '>= 1.10.1'
-gem 'omniauth-rails_csrf_protection', '~> 0.1'
+# gem 'omniauth-rails_csrf_protection', '~> 0.1'
 gem 'paper_trail-association_tracking'
