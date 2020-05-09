@@ -67,5 +67,7 @@ module Check
     config.assets.precompile += %w(rails_admin/rails_admin.css rails_admin/rails_admin.js)
 
     config.load_defaults 5.0
+
+    config.active_record.belongs_to_required_by_default = false
   end
 end

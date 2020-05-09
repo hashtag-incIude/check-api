@@ -1,4 +1,4 @@
-class MigrateSourceAnnotations < ActiveRecord::Migration
+class MigrateSourceAnnotations < ActiveRecord::Migration[4.2]
   def change
     Annotation.where(annotated_type: 'Source').find_each do |a|
       a = a.load

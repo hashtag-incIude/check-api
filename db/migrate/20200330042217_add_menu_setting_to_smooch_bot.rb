@@ -1,4 +1,4 @@
-class AddMenuSettingToSmoochBot < ActiveRecord::Migration
+class AddMenuSettingToSmoochBot < ActiveRecord::Migration[4.2]
   def change
     tb = BotUser.where(login: 'smooch').last
     unless tb.nil?

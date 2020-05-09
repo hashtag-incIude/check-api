@@ -1,4 +1,4 @@
-class CreateMissingProjectMediaProjects < ActiveRecord::Migration
+class CreateMissingProjectMediaProjects < ActiveRecord::Migration[4.2]
   def change
     pairs = []
 

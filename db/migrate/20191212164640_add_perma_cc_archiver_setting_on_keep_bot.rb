@@ -1,4 +1,4 @@
-class AddPermaCcArchiverSettingOnKeepBot < ActiveRecord::Migration
+class AddPermaCcArchiverSettingOnKeepBot < ActiveRecord::Migration[4.2]
   def change
     bot = BotUser.where(login: 'keep').last
     settings = bot.get_settings

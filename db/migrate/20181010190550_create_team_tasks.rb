@@ -1,4 +1,4 @@
-class CreateTeamTasks < ActiveRecord::Migration
+class CreateTeamTasks < ActiveRecord::Migration[4.2]
   def change
     create_table :team_tasks do |t|
       t.string :label, null: false

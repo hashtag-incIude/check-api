@@ -17,7 +17,7 @@ ENV['RAILS_ENV'] ||= 'test'
 require File.expand_path('../../config/environment', __FILE__)
 require 'rails/test_help'
 require 'webmock/minitest'
-require 'mocha/test_unit'
+require 'mocha/minitest'
 require 'sample_data'
 require 'parallel_tests/test/runtime_logger'
 require 'sidekiq/testing'
@@ -120,17 +120,16 @@ class ActiveSupport::TestCase
   def before_all
     super
     create_metadata_stuff
-    ApolloTracing.stubs(:start_proxy)
-    Pusher::Client.any_instance.stubs(:trigger)
-    Pusher::Client.any_instance.stubs(:post)
-    ProjectMedia.any_instance.stubs(:clear_caches).returns(nil)
-    # URL mocked by pender-client
-    @url = 'https://www.youtube.com/user/MeedanTube'
   end
 
   # This will run before any test
+  
+  def before_setup
+    super
+  end
 
   def setup
+    super
     [Account, Media, ProjectSource, ProjectMedia, User, Source, Annotation, Team, TeamUser, Relationship].each{ |klass| klass.delete_all }
     DynamicAnnotation::AnnotationType.where.not(annotation_type: 'metadata').delete_all
     DynamicAnnotation::FieldType.where.not(field_type: 'json').delete_all
@@ -148,6 +147,12 @@ class ActiveSupport::TestCase
     WebMock.stub_request(:get, pender_url).with({ query: { url: 'http://localhost' } }).to_return(body: '{"type":"media","data":{"url":"http://localhost","type":"item","foo":"1"}}')
     WebMock.stub_request(:get, /#{CONFIG['narcissus_url']}/).to_return(body: '{"url":"http://screenshot/test/test.png"}')
     RequestStore.store[:skip_cached_field_update] = true
+    ApolloTracing.stubs(:start_proxy)
+    Pusher::Client.any_instance.stubs(:trigger)
+    Pusher::Client.any_instance.stubs(:post)
+    ProjectMedia.any_instance.stubs(:clear_caches).returns(nil)
+    # URL mocked by pender-client
+    @url = 'https://www.youtube.com/user/MeedanTube'
   end
 
   # This will run after any test

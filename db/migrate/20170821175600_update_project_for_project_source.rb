@@ -1,4 +1,4 @@
-class UpdateProjectForProjectSource < ActiveRecord::Migration
+class UpdateProjectForProjectSource < ActiveRecord::Migration[4.2]
   def change
     ProjectSource.find_each do |ps|
       pm =  ps.source.medias.first

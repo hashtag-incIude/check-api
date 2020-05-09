@@ -1,4 +1,4 @@
-class CreateProjectMediaProjects < ActiveRecord::Migration
+class CreateProjectMediaProjects < ActiveRecord::Migration[4.2]
   def change
     create_table :project_media_projects do |t|
       t.references :project_media

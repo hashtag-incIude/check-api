@@ -1,4 +1,4 @@
-class AddKeepBot < ActiveRecord::Migration
+class AddKeepBot < ActiveRecord::Migration[4.2]
   def change
     RequestStore.store[:skip_notifications] = true
 

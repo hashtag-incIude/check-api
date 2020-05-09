@@ -19,9 +19,9 @@ class BotUser < User
 
   scope :not_approved, -> { where('settings LIKE ?', '%approved: false%') }
 
-  before_validation :set_team_author_id
+  before_validation :set_team_author_id_initial
   before_validation :format_settings
-  before_validation :set_version
+  before_validation :set_version_initial
   before_validation :set_fields
   before_validation :set_identifier, on: :create
   before_validation :create_api_key, on: :create
@@ -377,11 +377,11 @@ class BotUser < User
     TeamBotInstallation.where(user_id: self.id).update_all(role: self.get_role) if self.settings_changed?
   end
 
-  def set_version
+  def set_version_initial
     self.set_version('0.0.1') if self.get_version.blank?
   end
 
-  def set_team_author_id
+  def set_team_author_id_initial
     self.team_author_id = Team.current&.id if self.team_author_id.blank?
   end
 end

@@ -1,4 +1,4 @@
-class MigratePendingStatus < ActiveRecord::Migration
+class MigratePendingStatus < ActiveRecord::Migration[4.2]
   def change
     if CONFIG['app_name'] === 'Check' && !defined?(Status).nil?
       url = "http://#{CONFIG['elasticsearch_host']}:#{CONFIG['elasticsearch_port']}"

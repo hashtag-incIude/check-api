@@ -1,4 +1,4 @@
-class DeleteDuplicateSources < ActiveRecord::Migration
+class DeleteDuplicateSources < ActiveRecord::Migration[4.2]
   def change
   	ids = ProjectSource.all.map(&:source_id)
   	ids.concat User.all.map(&:source_id)

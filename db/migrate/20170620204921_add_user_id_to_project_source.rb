@@ -1,4 +1,4 @@
-class AddUserIdToProjectSource < ActiveRecord::Migration
+class AddUserIdToProjectSource < ActiveRecord::Migration[4.2]
   def change
     add_column :project_sources, :user_id, :integer
     add_index :project_sources, :user_id
