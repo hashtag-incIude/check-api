@@ -189,7 +189,7 @@ class TagTest < ActiveSupport::TestCase
     raw_params = { annotator: create_user, tag: 'my tag' }
     params = ActionController::Parameters.new(raw_params)
 
-    assert_raise ActionController::UnfilteredParameters do
+    assert_raise ActiveModel::ForbiddenAttributesError do
       Tag.create(params)
     end
   end

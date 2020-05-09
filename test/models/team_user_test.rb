@@ -283,7 +283,7 @@ class TeamUserTest < ActiveSupport::TestCase
     raw_params = { user: create_user, team: create_team }
     params = ActionController::Parameters.new(raw_params)
 
-    assert_raise ActionController::UnfilteredParameters do
+    assert_raise ActiveModel::ForbiddenAttributesError do
       TeamUser.create(params)
     end
   end

@@ -26,7 +26,7 @@ module TeamPrivate
   end
 
   def archive_or_restore_projects_if_needed
-    Team.delay.archive_or_restore_projects_if_needed(self.archived, self.id) if self.archived_changed?
+    Team.delay.archive_or_restore_projects_if_needed(self.archived, self.id) if self.saved_change_to_attribute?(:archived)
   end
 
   def reset_current_team

@@ -52,7 +52,7 @@ class ProjectSourceTest < ActiveSupport::TestCase
     raw_params = { project: create_project, source: create_source }
     params = ActionController::Parameters.new(raw_params)
 
-    assert_raise ActionController::UnfilteredParameters do
+    assert_raise ActiveModel::ForbiddenAttributesError do
       ProjectSource.create(params)
     end
   end

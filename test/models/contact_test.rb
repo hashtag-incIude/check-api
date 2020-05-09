@@ -88,7 +88,7 @@ class ContactTest < ActiveSupport::TestCase
     raw_params = { phone: random_valid_phone }
     params = ActionController::Parameters.new(raw_params)
 
-    assert_raise ActionController::UnfilteredParameters do
+    assert_raise ActiveModel::ForbiddenAttributesError do
       Contact.create(params)
     end
   end

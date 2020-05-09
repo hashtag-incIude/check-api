@@ -61,7 +61,7 @@ class TeamUser < ApplicationRecord
 
   def slack_notification_message
     # Ignore updates that don't involve the status. The presence of "id" indicates creation.
-    return nil if (self.changed & ['id', 'status']).blank?
+    return nil if (self.saved_changes.keys & ['id', 'status']).blank?
 
     params = self.slack_params
     {

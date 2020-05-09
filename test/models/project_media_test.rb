@@ -317,7 +317,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     raw_params = { project: create_project, user: create_user }
     params = ActionController::Parameters.new(raw_params)
 
-    assert_raise ActionController::UnfilteredParameters do
+    assert_raise ActiveModel::ForbiddenAttributesError do
       ProjectMedia.create(params)
     end
   end

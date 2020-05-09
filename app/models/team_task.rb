@@ -96,13 +96,13 @@ class TeamTask < ApplicationRecord
 
   def update_teamwide_tasks
     options = {
-      label: self.label_changed?,
-      description: self.description_changed?,
-      options: self.options_changed?
+      label: self.saved_change_to_attribute?(:label),
+      description: self.saved_change_to_attribute?(:description),
+      options: self.saved_change_to_attribute?(:options)
     }
     options.delete_if{|_k, v| v == false || v.nil?}
     projects = {}
-    if self.project_ids_changed?
+    if self.saved_change_to_attribute?(:project_ids)
       projects = {
         old: self.project_ids_was,
         new: self.project_ids,

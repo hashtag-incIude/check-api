@@ -253,7 +253,7 @@ class Project < ApplicationRecord
   end
 
   def archive_or_restore_project_medias_if_needed
-    Project.delay.archive_or_restore_project_medias_if_needed(self.archived, self.id) if self.archived_changed?
+    Project.delay.archive_or_restore_project_medias_if_needed(self.archived, self.id) if self.saved_change_to_attribute?(:archived)
   end
 
   def team_is_not_archived

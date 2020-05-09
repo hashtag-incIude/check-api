@@ -13,7 +13,7 @@ module ProjectMediaPrivate
   private
 
   def move_media_sources
-    if self.project_id_changed?
+    if self.saved_change_to_attribute?(:project_id)
       ps = get_project_source(self.project_id_was)
       unless ps.nil?
         target_ps = ProjectSource.where(project_id: self.project_id, source_id: ps.source_id).last
@@ -66,7 +66,7 @@ module ProjectMediaPrivate
   end
 
   def archive_or_restore_related_medias_if_needed
-    ProjectMedia.delay.archive_or_restore_related_medias(self.archived, self.id) if self.archived_changed?
+    ProjectMedia.delay.archive_or_restore_related_medias(self.archived, self.id) if self.saved_change_to_attribute?(:archived)
   end
 
   def destroy_related_medias
@@ -100,7 +100,7 @@ module ProjectMediaPrivate
   end
 
   def update_project_media_project
-    if self.previous_changes.keys.include?('project_id') || self.changes.keys.include?('project_id') || (!self.previous_project_id.nil? && !self.project_id.nil? && self.previous_project_id != self.project_id)
+    if self.previous_changes.keys.include?('project_id') || self.saved_changes.keys.include?('project_id') || (!self.previous_project_id.nil? && !self.project_id.nil? && self.previous_project_id != self.project_id)
       ProjectMediaProject.where(project_media_id: self.id).delete_all
       ProjectMediaProject.create!(project_media_id: self.id, project_id: self.project_id)
       # Update team task

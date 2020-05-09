@@ -321,7 +321,7 @@ class ProjectTest < ActiveSupport::TestCase
     raw_params = { title: "My project", team: create_team }
     params = ActionController::Parameters.new(raw_params)
 
-    assert_raise ActionController::UnfilteredParameters do
+    assert_raise ActiveModel::ForbiddenAttributesError do
       Project.create(params)
     end
   end

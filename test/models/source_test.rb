@@ -257,7 +257,7 @@ class SourceTest < ActiveSupport::TestCase
     raw_params = { name: "My source", user: create_user }
     params = ActionController::Parameters.new(raw_params)
 
-    assert_raise ActionController::UnfilteredParameters do
+    assert_raise ActiveModel::ForbiddenAttributesError do
       Source.create(params)
     end
   end

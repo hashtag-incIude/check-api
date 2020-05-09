@@ -517,7 +517,7 @@ class UserTest < ActiveSupport::TestCase
     raw_params = { name: 'My name', login: 'my-name' }
     params = ActionController::Parameters.new(raw_params)
 
-    assert_raise ActionController::UnfilteredParameters do
+    assert_raise ActiveModel::ForbiddenAttributesError do
       User.create(params)
     end
   end

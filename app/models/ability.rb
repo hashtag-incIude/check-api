@@ -240,7 +240,7 @@ class Ability
 
   def contributor_and_annotator_perms
     can :update, Task, ['annotation_type = ?', 'task'] do |obj|
-      before, after = obj.data_change
+      before, after = obj.changes_to_save[:data]
       changes = (after.to_a - before.to_a).to_h
       obj.get_team.include?(@context_team.id) && changes.keys == [] && !obj.annotated_is_archived?
     end

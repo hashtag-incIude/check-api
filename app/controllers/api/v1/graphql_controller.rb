@@ -45,18 +45,18 @@ module Api
 
       def parse_graphql_result
         context = { ability: @ability, file: request.params[:file] }
-        # begin
+        begin
           result = yield(context)
           render json: result
-        # rescue ActiveRecord::RecordInvalid, RuntimeError, ActiveRecord::RecordNotUnique, NameError => e
-        #   render json: parse_json_exception(e), status: 400
-        # rescue CheckPermissions::AccessDenied => e
-        #   render json: format_error_message(e), status: 403
-        # rescue ActiveRecord::RecordNotFound => e
-        #   render json: format_error_message(e), status: 404
-        # rescue ActiveRecord::StaleObjectError => e
-        #   render json: format_error_message(e), status: 409
-        # end
+        rescue ActiveRecord::RecordInvalid, RuntimeError, ActiveRecord::RecordNotUnique, NameError => e
+          render json: parse_json_exception(e), status: 400
+        rescue CheckPermissions::AccessDenied => e
+          render json: format_error_message(e), status: 403
+        rescue ActiveRecord::RecordNotFound => e
+          render json: format_error_message(e), status: 404
+        rescue ActiveRecord::StaleObjectError => e
+          render json: format_error_message(e), status: 409
+        end
       end
 
       def prepare_query_variables(vars)

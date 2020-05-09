@@ -111,7 +111,7 @@ class MetadataTest < ActiveSupport::TestCase
     raw_params = { annotation_type: 'metadata', annotated: create_project_source }
     params = ActionController::Parameters.new(raw_params)
 
-    assert_raise ActionController::UnfilteredParameters do
+    assert_raise ActiveModel::ForbiddenAttributesError do
       Dynamic.create(params)
     end
   end
