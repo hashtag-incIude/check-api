@@ -24,7 +24,7 @@ module CheckBasicAbilities
     can :create, Team
     can :create, TeamUser, :user_id => @user.id, status: ['member', 'requested']
     can :update, TeamUser do |obj|
-      obj.user_id == @user.id && obj.user_id_before_last_save == obj.user_id && obj.role_before_last_save == obj.role && obj.status_before_last_save == 'member' && obj.status == 'banned'
+      obj.user_id == @user.id && obj.user_id_was == obj.user_id && obj.role_was == obj.role && obj.status_was == 'member' && obj.status == 'banned'
     end
 
     # Permissions for registration and login

@@ -82,7 +82,7 @@ module ActiveRecordExtensions
   end
 
   def is_archived?
-    self.respond_to?(:archived) && self.archived_before_last_save
+    self.respond_to?(:archived) && self.archived_was
   end
 
   def graphql_id

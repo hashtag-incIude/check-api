@@ -129,7 +129,7 @@ class TeamUser < ApplicationRecord
 
   def send_email_to_requestor
     return if self.is_being_copied
-    if self.status_before_last_save === 'requested' && ['member', 'banned'].include?(self.status)
+    if self.status_was === 'requested' && ['member', 'banned'].include?(self.status)
       accepted = self.status === 'member'
       TeamUserMailer.delay.request_to_join_processed(self.team, self.user, accepted)
     end

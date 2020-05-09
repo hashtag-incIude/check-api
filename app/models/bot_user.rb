@@ -314,8 +314,8 @@ class BotUser < User
 
   def can_approve
     approved = self.settings.to_h.with_indifferent_access[:approved]
-    approved_before_last_save = self.settings_before_last_save.to_h.with_indifferent_access[:approved]
-    if User.current.present? && !User.current.is_admin? && approved == true && approved_before_last_save != true
+    approved_was = self.settings_was.to_h.with_indifferent_access[:approved]
+    if User.current.present? && !User.current.is_admin? && approved == true && approved_was != true
       errors.add(:base, I18n.t(:only_admins_can_approve_bots))
     end
   end

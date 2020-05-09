@@ -74,7 +74,7 @@ class Task < ApplicationRecord
   def slack_notification_message(params = nil)
     if params.nil?
       params = self.slack_params
-      if self.saved_change_to_attribute?(:data) and self.data.except(*SLACK_FIELDS_IGNORE) != self.data_before_last_save.except(*SLACK_FIELDS_IGNORE)
+      if self.saved_change_to_attribute?(:data) and self.data.except(*SLACK_FIELDS_IGNORE) != self.data_was.except(*SLACK_FIELDS_IGNORE)
         event = self.annotation_versions.count > 1 ? 'edit' : 'create'
       elsif !params[:assignment_event].blank?
         event = params[:assignment_event]
