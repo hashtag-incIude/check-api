@@ -4,6 +4,7 @@ class SmoochBotDeliveryFailure < StandardError
 end
 
 class Bot::Smooch < BotUser
+  extend Twitter::TwitterText::Extractor
 
   check_settings
 
@@ -700,7 +701,7 @@ class Bot::Smooch < BotUser
 
   def self.extract_url(text)
     begin
-      urls = Twitter::Extractor.extract_urls(text)
+      urls = extract_urls(text)
       return nil if urls.blank?
       url = urls.first
       url = 'https://' + url unless url =~ /^https?:\/\//
@@ -719,7 +720,7 @@ class Bot::Smooch < BotUser
   end
 
   def self.add_hashtags(text, pm)
-    hashtags = Twitter::Extractor.extract_hashtags(text)
+    hashtags = extract_hashtags(text)
     return nil if hashtags.blank?
 
     # Only add team tags.
