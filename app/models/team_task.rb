@@ -104,7 +104,7 @@ class TeamTask < ApplicationRecord
     projects = {}
     if self.saved_change_to_attribute?(:project_ids)
       projects = {
-        old: self.project_ids_was,
+        old: self.project_ids_before_last_save,
         new: self.project_ids,
       }
     end

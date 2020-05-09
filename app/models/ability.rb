@@ -139,12 +139,12 @@ class Ability
   def editor_perms
     can :update, Team, :id => @context_team.id
     can :create, TeamUser, :team_id => @context_team.id, role: ['editor', 'annotator']
-    can :update, TeamUser, team_id: @context_team.id, role: ['editor', 'journalist', 'contributor'], role_was: ['editor', 'journalist', 'contributor']
+    can :update, TeamUser, team_id: @context_team.id, role: ['editor', 'journalist', 'contributor'], role_before_last_save: ['editor', 'journalist', 'contributor']
     can [:create, :update], Contact, :team_id => @context_team.id
     can :update, Project, :team_id => @context_team.id
     can [:update, :destroy], Relationship, { source: { team_id: @context_team.id }, target: { team_id: @context_team.id } }
     can :destroy, ProjectMedia do |obj|
-      obj.related_to_team?(@context_team) && obj.archived_was == false && obj.user_id == @user.id
+      obj.related_to_team?(@context_team) && obj.archived_before_last_save == false && obj.user_id == @user.id
     end
     %w(annotation comment dynamic task).each do |annotation_type|
       can [:destroy, :update], annotation_type.classify.constantize, ['annotation_type = ?', annotation_type] do |obj|
@@ -157,7 +157,7 @@ class Ability
       obj.get_team.include?(@context_team.id) && ((type == 'Annotation' && !obj.annotated_is_archived?) || (type == 'Project' && !obj.archived))
     end
     can :lock_annotation, ProjectMedia do |obj|
-      obj.related_to_team?(@context_team) && obj.archived_was == false
+      obj.related_to_team?(@context_team) && obj.archived_before_last_save == false
     end
     can :import_spreadsheet, Team, :id => @context_team.id
     can :invite_members, Team, :id => @context_team.id
@@ -169,7 +169,7 @@ class Ability
     can :update, Project, :team_id => @context_team.id, :user_id => @user.id
     can :update, [Media, Link, Claim], projects: { team: { team_users: { team_id: @context_team.id }}}
     can [:update, :administer_content], ProjectMedia do |obj|
-      obj.related_to_team?(@context_team) && obj.archived_was == false
+      obj.related_to_team?(@context_team) && obj.archived_before_last_save == false
     end
     can [:create, :update], ProjectSource, project: { team: { team_users: { team_id: @context_team.id }}}
     can [:create, :update], Source, :team_id => @context_team.id
@@ -202,10 +202,10 @@ class Ability
     can [:create, :update], Account, source: { team: { team_users: { team_id: @context_team.id }}}, :user_id => @user.id
     can [:create, :update], AccountSource, source: { user_id: @user.id, team: { team_users: { team_id: @context_team.id }}}
     can :create, ProjectMedia do |obj|
-      obj.related_to_team?(@context_team) && obj.archived_was == false
+      obj.related_to_team?(@context_team) && obj.archived_before_last_save == false
     end
     can :update, ProjectMedia do |obj|
-      obj.related_to_team?(@context_team) && obj.archived_was == false && obj.user_id == @user.id
+      obj.related_to_team?(@context_team) && obj.archived_before_last_save == false && obj.user_id == @user.id
     end
     can [:update, :destroy], Comment, ['annotation_type = ?', 'comment'] do |obj|
       obj.get_team.include?(@context_team.id) and (obj.annotator_id.to_i == @user.id) and !obj.annotated_is_archived? && !obj.locked?

@@ -19,7 +19,7 @@ end
 
 group :doc do
   gem 'railroady', require: false
-  gem 'sdoc', '~> 0.4.0', require: false
+  gem 'sdoc', require: false
   gem 'gem-licenses', require: false
 end
 
@@ -46,7 +46,7 @@ gem 'carrierwave', '~> 1.0'
 gem 'phony_rails'
 gem 'airbrake', '9.4.4'
 gem 'responders'
-gem 'graphql', '1.8.0.pre10'
+gem 'graphql', '1.10.9'
 gem 'devise', '4.7.1'
 gem 'devise_invitable', '~> 1.7.0'
 gem 'omniauth-twitter'
@@ -96,7 +96,7 @@ gem 'pghero'
 gem 'pg_query', '>= 0.9.0'
 gem 'multi_json', '1.12.2'
 gem 'json-schema'
-gem 'ffi', '1.9.24'
+gem 'ffi', '1.12.2'
 gem 'google_drive'
 gem 'activerecord-import'
 gem 'redis-rails'
@@ -131,3 +131,4 @@ gem 'swagger-docs'
 gem 'ruby-progressbar', '~> 1.10', '>= 1.10.1'
 gem 'paper_trail-association_tracking'
 gem 'shortener'
+gem 'json', github: 'andrewkress/json', branch: 'fix-ruby-deprications'

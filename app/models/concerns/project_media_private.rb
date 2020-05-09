@@ -14,7 +14,7 @@ module ProjectMediaPrivate
 
   def move_media_sources
     if self.saved_change_to_attribute?(:project_id)
-      ps = get_project_source(self.project_id_was)
+      ps = get_project_source(self.project_id_before_last_save)
       unless ps.nil?
         target_ps = ProjectSource.where(project_id: self.project_id, source_id: ps.source_id).last
         ps.skip_check_ability = true

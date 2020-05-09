@@ -184,8 +184,8 @@ class Relationship < ApplicationRecord
   end
 
   def reset_counters
-    if (self.source_id_was && self.source_id_was != self.source_id) || (self.target_id_was && self.target_id_was != self.target_id)
-      previous = Relationship.new(source_id: self.source_id_was, target_id: self.target_id_was)
+    if (self.source_id_before_last_save && self.source_id_before_last_save != self.source_id) || (self.target_id_before_last_save && self.target_id_before_last_save != self.target_id)
+      previous = Relationship.new(source_id: self.source_id_before_last_save, target_id: self.target_id_before_last_save)
       previous.update_counters(-1)
       previous.send :unindex_source
       current = Relationship.new(source_id: self.source_id, target_id: self.target_id)
@@ -205,7 +205,7 @@ class Relationship < ApplicationRecord
   end
 
   def propagate_inversion
-    if self.source_id_was == self.target_id && self.target_id_was == self.source_id
+    if self.source_id_before_last_save == self.target_id && self.target_id_before_last_save == self.source_id
       ids = Relationship.where(source_id: self.target_id).map(&:id).join(',')
       Relationship.where(source_id: self.target_id).update_all({ source_id: self.source_id })
       Relationship.delay_for(1.second).propagate_inversion(ids, self.source_id)

@@ -66,7 +66,7 @@ class TagText < ApplicationRecord
     existing = TagText.where(text: self.text, team_id: self.team_id).last
     if !existing.nil? && existing.id != self.id
       TagText.delay_for(1.second).update_tags(self.id, self.team_id, existing.id)
-      self.text = self.text_was
+      self.text = self.text_before_last_save
       self.marked_for_deletion = true
     end
   end

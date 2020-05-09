@@ -1226,11 +1226,11 @@ class GraphqlController2Test < ActionController::TestCase
     v = create_version
     t = Team.last
     id = Base64.encode64("Version/#{v.id}")
-    q = assert_queries 10 do
+    qs = assert_queries 11 do
       post :create, params: { query: "query Query { node(id: \"#{id}\") { id } }", team: t.slug }
     end
-    assert !q.include?('SELECT  "versions".* FROM "versions" WHERE "versions"."id" = $1 LIMIT 1')
-    assert q.include?("SELECT  \"versions\".* FROM \"versions_partitions\".\"p#{t.id}\" \"versions\" WHERE \"versions\".\"id\" = $1  ORDER BY \"versions\".\"id\" DESC LIMIT 1")
+    assert qs.select{ |q| q =~ /FROM "versions"/ }.empty?
+    assert !qs.select{ |q| q =~ /FROM "versions_partitions"/ }.empty?
   end
 
   test "should empty trash" do

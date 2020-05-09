@@ -36,7 +36,7 @@ class GreendayBaseControllerTest < ActionController::TestCase
   end
 
   test "should return true for options requests" do
-    process :ping, 'OPTIONS'
+    process :ping, method: 'OPTIONS'
     assert_response :success
   end
 end 

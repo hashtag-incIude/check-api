@@ -4,7 +4,7 @@ class Version < Partitioned::ByForeignKey
   attr_accessor :is_being_copied
 
   before_validation :set_team_id, on: :create
-  before_create :set_object_after, :set_user, :set_event_type, :set_project_association, :set_meta, unless: proc { |pt| pt.is_being_copied }
+  before_create :nullify_object_changes_for_destroy, :set_object_after, :set_user, :set_event_type, :set_project_association, :set_meta, unless: proc { |pt| pt.is_being_copied }
   after_create :increment_project_association_annotations_count
   after_destroy :decrement_project_association_annotations_count
 
@@ -270,5 +270,9 @@ class Version < Partitioned::ByForeignKey
 
   def set_team_id
     self.team_id = self.get_team_id || Team.current&.id
+  end
+
+  def nullify_object_changes_for_destroy
+    self.object_changes = nil if self.event == 'destroy'
   end
 end

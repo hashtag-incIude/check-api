@@ -181,7 +181,7 @@ class ActiveSupport::TestCase
     ApplicationRecord.connection.enable_query_cache!
     queries  = []
     callback = lambda { |name, start, finish, id, payload|
-      queries << payload[:sql] if payload[:sql] =~ /^SELECT|UPDATE|INSERT/ and payload[:name] != 'CACHE'
+      queries << payload[:sql] if payload[:sql] =~ /^SELECT|UPDATE|INSERT/ and !payload[:cached]
     }
     ActiveSupport::Notifications.subscribed(callback, "sql.active_record", &block)
     queries

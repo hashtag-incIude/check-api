@@ -144,7 +144,7 @@ module ProjectMediaEmbed
 
   def html(options = {})
     av = ActionView::Base.new(Rails.root.join('app', 'views'))
-    av.assign({ project_media: self, source_author: self.source_author }.merge(options))
+    av.assign({ project_media: self, source_author: self.source_author }.merge(options.permit!.to_h))
     av.render(template: 'project_medias/oembed.html.erb', layout: nil)
   end
 
