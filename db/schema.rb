@@ -145,7 +145,7 @@ ActiveRecord::Schema.define(version: 2020_05_06_223124) do
     t.text "value", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.jsonb "value_json", default: "{}"
+    t.jsonb "value_json", default: {}
     t.index ["annotation_id"], name: "index_dynamic_annotation_fields_on_annotation_id"
     t.index ["field_type"], name: "index_dynamic_annotation_fields_on_field_type"
     t.index ["value"], name: "translation_request_id", unique: true, where: "((field_name)::text = 'translation_request_id'::text)"
@@ -158,8 +158,8 @@ ActiveRecord::Schema.define(version: 2020_05_06_223124) do
     t.string "identity"
     t.boolean "success"
     t.string "failure_reason"
-    t.string "user_type"
     t.integer "user_id"
+    t.string "user_type"
     t.string "context"
     t.string "ip"
     t.text "user_agent"
@@ -255,12 +255,6 @@ ActiveRecord::Schema.define(version: 2020_05_06_223124) do
     t.datetime "updated_at", null: false
     t.integer "user_id"
     t.index ["source_id", "target_id", "relationship_type"], name: "relationship_index", unique: true
-  end
-
-  create_table "sample_models", id: :serial, force: :cascade do |t|
-    t.string "test"
-    t.datetime "created_at"
-    t.datetime "updated_at"
   end
 
   create_table "shortened_urls", id: :serial, force: :cascade do |t|
