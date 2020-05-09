@@ -104,7 +104,7 @@ class OmniauthCallbacksControllerTest < ActionController::TestCase
 
   test "should redirect to destination after Twitter authentication" do
     request.env['omniauth.auth'] = OmniAuth.config.mock_auth[:twitter]
-    get :twitter, destination: '/close.html'
+    get :twitter, params: { destination: '/close.html' }
     assert_redirected_to '/close.html'
   end
 
@@ -153,7 +153,7 @@ class OmniauthCallbacksControllerTest < ActionController::TestCase
     assert_nil request.env['warden'].user
     authenticate_with_user(u)
     assert_equal u, request.env['warden'].user
-    get :logout, destination: '/api'
+    get :logout, params: { destination: '/api' }
     assert_redirected_to '/api'
     assert_nil request.env['warden'].user
   end
@@ -214,7 +214,7 @@ class OmniauthCallbacksControllerTest < ActionController::TestCase
 
   test "should redirect to destination after Google authentication" do
     request.env['omniauth.auth'] = OmniAuth.config.mock_auth[:google_oauth2]
-    get :google_oauth2, destination: '/close.html'
+    get :google_oauth2, params: { destination: '/close.html' }
     assert_redirected_to '/close.html'
   end
 

@@ -11,7 +11,7 @@ class BaseApiControllerTest < ActionController::TestCase
   end
 
   test "should remove empty parameters" do
-    get :ping, empty: '', notempty: 'Something'
+    get :ping, params: { empty: '', notempty: 'Something' }
     assert !@controller.params.keys.include?('empty')
     assert @controller.params.keys.include?('notempty')
   end
@@ -109,12 +109,12 @@ class BaseApiControllerTest < ActionController::TestCase
 
   test "should send logs" do
     authenticate_with_user_token
-    post :log, foo: 'bar'
+    post :log, params: { foo: 'bar' }
     assert_response :success
   end
 
   test "should not send logs if not logged in" do
-    post :log, foo: 'bar'
+    post :log, params: { foo: 'bar' }
     assert_response 401
   end
 

@@ -21,7 +21,7 @@ class ElasticSearchTest < ActionController::TestCase
     pm2 = create_project_media project: p, media: m2, disable_es_callbacks: false
     sleep 10
     query = 'query Search { search(query: "{\"keyword\":\"title_a\",\"projects\":[' + p.id.to_s + ']}") { number_of_results, medias(first: 10) { edges { node { dbid } } } } }'
-    post :create, query: query
+    post :create, params: { query: query }
     assert_response :success
     ids = []
     JSON.parse(@response.body)['data']['search']['medias']['edges'].each do |id|
@@ -31,7 +31,7 @@ class ElasticSearchTest < ActionController::TestCase
     create_comment text: 'title_a', annotated: pm1, disable_es_callbacks: false
     sleep 20
     query = 'query Search { search(query: "{\"keyword\":\"title_a\",\"sort\":\"recent_activity\",\"projects\":[' + p.id.to_s + ']}") { medias(first: 10) { edges { node { dbid, project_id } } } } }'
-    post :create, query: query
+    post :create, params: { query: query }
     assert_response :success
     ids = []
     JSON.parse(@response.body)['data']['search']['medias']['edges'].each do |id|
@@ -55,7 +55,7 @@ class ElasticSearchTest < ActionController::TestCase
     pm2 = create_project_media project: p2, media: m,  disable_es_callbacks:  false
     sleep 10
     query = 'query Search { search(query: "{\"keyword\":\"title_a\",\"projects\":[' + p.id.to_s + ',' + p2.id.to_s + ']}") { medias(first: 10) { edges { node { dbid, project_id } } } } }'
-    post :create, query: query
+    post :create, params: { query: query }
     assert_response :success
     p_ids = []
     m_ids = []
@@ -68,7 +68,7 @@ class ElasticSearchTest < ActionController::TestCase
     pm2.metadata = {description: 'new_description'}.to_json
     sleep 10
     query = 'query Search { search(query: "{\"keyword\":\"title_a\",\"projects\":[' + p.id.to_s + ',' + p2.id.to_s + ']}") { medias(first: 10) { edges { node { dbid, project_id, metadata } } } } }'
-    post :create, query: query
+    post :create, params: { query: query }
     assert_response :success
     result = {}
     JSON.parse(@response.body)['data']['search']['medias']['edges'].each do |id|
@@ -102,7 +102,7 @@ class ElasticSearchTest < ActionController::TestCase
     a.save!
     sleep 20
     query = 'query Search { search(query: "{\"keyword\":\"dynamic response\",\"projects\":[' + p.id.to_s + ']}") { number_of_results, medias(first: 10) { edges { node { dbid } } } } }'
-    post :create, query: query
+    post :create, params: { query: query }
     assert_response :success
     ids = []
     JSON.parse(@response.body)['data']['search']['medias']['edges'].each do |id|
@@ -110,7 +110,7 @@ class ElasticSearchTest < ActionController::TestCase
     end
     assert_equal [pm1.id], ids
     query = 'query Search { search(query: "{\"keyword\":\"dynamic note\",\"projects\":[' + p.id.to_s + ']}") { number_of_results, medias(first: 10) { edges { node { dbid } } } } }'
-    post :create, query: query
+    post :create, params: { query: query }
     assert_response :success
     ids = []
     JSON.parse(@response.body)['data']['search']['medias']['edges'].each do |id|
@@ -134,7 +134,7 @@ class ElasticSearchTest < ActionController::TestCase
     t.response = { annotation_type: 'task_response', set_fields: { response: 'Test' }.to_json }.to_json
     t.save!
     query = "query { project_media(ids: \"#{pm.id},#{p.id}\") { tasks { edges { node { jsonoptions, first_response_value, first_response { content } } } } } }"
-    post :create, query: query, team: @team.slug
+    post :create, params: { query: query, team: @team.slug }
     assert_response :success
     node = JSON.parse(@response.body)['data']['project_media']['tasks']['edges'][0]['node']
     fields = node['first_response']['content']
@@ -153,7 +153,7 @@ class ElasticSearchTest < ActionController::TestCase
     authenticate_with_user(u)
     id = Base64.encode64("ProjectMedia/#{pm.id}")
     query = "mutation update { updateProjectMedia( input: { clientMutationId: \"1\", id: \"#{id}\", project_id: #{p2.id} }) { project_media { project_id }, project { id } } }"
-    post :create, query: query, team: @team.slug
+    post :create, params: { query: query, team: @team.slug }
     assert_response :success
     assert_equal p2.id, JSON.parse(@response.body)['data']['updateProjectMedia']['project_media']['project_id']
     last_version = pm.versions.last
@@ -172,7 +172,7 @@ class ElasticSearchTest < ActionController::TestCase
       pm2 = create_project_media project: p, disable_es_callbacks: false
       authenticate_with_user(u)
       query = "mutation { updateProjectMedia(input: { clientMutationId: \"1\", id: \"#{pm1.graphql_id}\", ids: [\"#{pm1.graphql_id}\", \"#{pm2.graphql_id}\"], project_id: #{p2.id} }) { affectedIds, check_search_project { number_of_results } } }"
-      post :create, query: query, team: @team.slug
+      post :create, params: { query: query, team: @team.slug }
       assert_response :success
       assert_equal [pm1.graphql_id, pm2.graphql_id].sort, JSON.parse(@response.body)['data']['updateProjectMedia']['affectedIds'].sort
       # sleep 1

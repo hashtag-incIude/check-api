@@ -16,23 +16,23 @@ class GraphqlControllerTest < ActionController::TestCase
   end
 
   test "should access GraphQL query if not authenticated" do
-    post :create, query: 'query Query { about { name, version } }'
+    post :create, params: { query: 'query Query { about { name, version } }' }
     assert_response 200
   end
 
   test "should not access GraphQL mutation if not authenticated" do
-    post :create, query: 'mutation Test'
+    post :create, params: { query: 'mutation Test' }
     assert_response 401
   end
 
   test "should access About if not authenticated" do
-    post :create, query: 'query About { about { name, version } }'
+    post :create, params: { query: 'query About { about { name, version } }' }
     assert_response :success
   end
 
   test "should access GraphQL if authenticated" do
     authenticate_with_user
-    post :create, query: 'query Query { about { name, version, upload_max_size, upload_extensions, upload_max_dimensions, upload_min_dimensions } }', variables: '{"foo":"bar"}'
+    post :create, params: { query: 'query Query { about { name, version, upload_max_size, upload_extensions, upload_max_dimensions, upload_min_dimensions } }', variables: '{"foo":"bar"}' }
     assert_response :success
     data = JSON.parse(@response.body)['data']['about']
     assert_kind_of String, data['name']
@@ -41,21 +41,21 @@ class GraphqlControllerTest < ActionController::TestCase
 
   test "should not access GraphQL if authenticated as a bot" do
     authenticate_with_user(create_bot_user)
-    post :create, query: 'query Query { about { name, version, upload_max_size, upload_extensions, upload_max_dimensions, upload_min_dimensions } }', variables: '{"foo":"bar"}'
+    post :create, params: { query: 'query Query { about { name, version, upload_max_size, upload_extensions, upload_max_dimensions, upload_min_dimensions } }', variables: '{"foo":"bar"}' }
     assert_response 401
   end
 
   test "should get node from global id" do
     authenticate_with_user
     id = Base64.encode64('About/1')
-    post :create, query: "query Query { node(id: \"#{id}\") { id } }"
+    post :create, params: { query: "query Query { node(id: \"#{id}\") { id } }" }
     assert_equal id, JSON.parse(@response.body)['data']['node']['id']
   end
 
   test "should get current user" do
     u = create_user name: 'Test User'
     authenticate_with_user(u)
-    post :create, query: 'query Query { me { source_id, token, is_admin, current_project { id }, name, bot { id } } }'
+    post :create, params: { query: 'query Query { me { source_id, token, is_admin, current_project { id }, name, bot { id } } }' }
     assert_response :success
     data = JSON.parse(@response.body)['data']['me']
     assert_equal 'Test User', data['name']
@@ -64,7 +64,7 @@ class GraphqlControllerTest < ActionController::TestCase
   test "should get current user if logged in with token" do
     u = create_user name: 'Test User'
     authenticate_with_user_token(u.token)
-    post :create, query: 'query Query { me { name } }'
+    post :create, params: { query: 'query Query { me { name } }' }
     assert_response :success
     data = JSON.parse(@response.body)['data']['me']
     assert_equal 'Test User', data['name']
@@ -72,14 +72,14 @@ class GraphqlControllerTest < ActionController::TestCase
 
   test "should return 404 if object does not exist" do
     authenticate_with_user
-    post :create, query: 'query GetById { project_media(ids: "99999,99999") { id } }'
+    post :create, params: { query: 'query GetById { project_media(ids: "99999,99999") { id } }' }
     assert_response 404
   end
 
   test "should set context team" do
     authenticate_with_user
     t = create_team slug: 'context'
-    post :create, query: 'query Query { about { name, version } }', team: 'context'
+    post :create, params: { query: 'query Query { about { name, version } }', team: 'context' }
     assert_equal t, assigns(:context_team)
   end
 
@@ -147,7 +147,7 @@ class GraphqlControllerTest < ActionController::TestCase
     tg = create_tag annotated: pm
     tg.assign_user(u.id)
     query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { tasks_count, published, language, language_code, last_status_obj {dbid}, project_source {dbid, project_id}, annotations(annotation_type: \"comment,tag\") { edges { node { dbid, assignments { edges { node { name } } }, annotator { user { name } } } } } } }"
-    post :create, query: query, team: @team.slug
+    post :create, params: { query: query, team: @team.slug }
     assert_response :success
     data = JSON.parse(@response.body)['data']['project_media']
     assert_not_empty data['published']
@@ -168,7 +168,7 @@ class GraphqlControllerTest < ActionController::TestCase
     p = create_project team: @team
     pm = create_project_media project: p
     query = "query GetById { project_media(ids: \"#{pm.id},#{p.id},#{@team.id}\") { published, language, last_status_obj {dbid}, log_count } }"
-    post :create, query: query
+    post :create, params: { query: query }
     assert_response :success
     assert_not_empty JSON.parse(@response.body)['data']['project_media']['published']
     assert_not_empty JSON.parse(@response.body)['data']['project_media']['last_status_obj']['dbid']
@@ -186,17 +186,17 @@ class GraphqlControllerTest < ActionController::TestCase
     pm3 = create_project_media project: p, media: m2
 
     query = "query GetById { project_media(ids: \"#{pm3.id},#{p.id}\") { dbid } }"
-    post :create, query: query, team: @team.slug
+    post :create, params: { query: query, team: @team.slug }
     assert_response :success
     assert_equal pm3.id, JSON.parse(@response.body)['data']['project_media']['dbid']
 
     query = "query GetById { project_media(ids: \"#{m2.id},#{p.id}\") { dbid } }"
-    post :create, query: query, team: @team.slug
+    post :create, params: { query: query, team: @team.slug }
     assert_response :success
     assert_equal pm3.id, JSON.parse(@response.body)['data']['project_media']['dbid']
 
     query = "query GetById { project_media(ids: \"#{pm3.id},0,#{@team.id}\") { dbid } }"
-    post :create, query: query, team: @team.slug
+    post :create, params: { query: query, team: @team.slug }
     assert_response :success
     assert_equal pm3.id, JSON.parse(@response.body)['data']['project_media']['dbid']
   end
@@ -219,12 +219,12 @@ class GraphqlControllerTest < ActionController::TestCase
     info = {title: 'Title B', description: 'Desc B'}.to_json
     pm2.metadata = info
     query = "query GetById { project_media(ids: \"#{pm1.id},#{p.id}\") { metadata } }"
-    post :create, query: query, team: @team.slug
+    post :create, params: { query: query, team: @team.slug }
     assert_response :success
     metadata = JSON.parse(@response.body)['data']['project_media']['metadata']
     assert_equal 'Title A', metadata['title']
     query = "query GetById { project_media(ids: \"#{pm2.id},#{p2.id}\") { metadata, media { metadata } } }"
-    post :create, query: query, team: @team.slug
+    post :create, params: { query: query, team: @team.slug }
     assert_response :success
     data = JSON.parse(@response.body)['data']['project_media']
     assert_equal 'Title B', data['metadata']['title']
@@ -245,7 +245,7 @@ class GraphqlControllerTest < ActionController::TestCase
     info = {title: 'Title A', description: 'Desc A'}.to_json
     pm.metadata = info
     query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { overridden } }"
-    post :create, query: query, team: @team.slug
+    post :create, params: { query: query, team: @team.slug }
     assert_response :success
     overridden = JSON.parse(@response.body)['data']['project_media']['overridden']
     assert overridden['title']
@@ -259,14 +259,14 @@ class GraphqlControllerTest < ActionController::TestCase
     p2 = create_project team: @team
     pm = create_project_media project: p
     query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { dbid } }"
-    post :create, query: query, team: @team.slug
+    post :create, params: { query: query, team: @team.slug }
     assert_response :success
     assert_equal pm.id, JSON.parse(@response.body)['data']['project_media']['dbid']
     assert_equal pm.id, JSON.parse(@response.body)['data']['project_media']['dbid']
     pm.project = p2
     pm.save!
     query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { dbid } }"
-    post :create, query: query, team: @team.slug
+    post :create, params: { query: query, team: @team.slug }
     assert_response :success
     assert_equal pm.id, JSON.parse(@response.body)['data']['project_media']['dbid']
   end
@@ -291,7 +291,7 @@ class GraphqlControllerTest < ActionController::TestCase
     create_comment annotated: ps2
     create_tag annotated: ps2
     query = "query GetById { project_source(ids: \"#{ps.id},#{p.id}\") { published, source { overridden, log(first: 1000) { edges { node { event_type } } }, log_count, tags { edges { node { dbid } } }, annotations_count(annotation_type: \"comment,tag\"), annotations(annotation_type: \"comment,tag\") { edges { node { dbid } } } }, user{id}, team{id} } }"
-    post :create, query: query, team: @team.slug
+    post :create, params: { query: query, team: @team.slug }
     assert_response :success
     data = JSON.parse(@response.body)['data']['project_source']
     assert_not_empty data['user']['id']
@@ -308,7 +308,7 @@ class GraphqlControllerTest < ActionController::TestCase
     p = create_project team: @team
     ps = create_project_source project: p
     query = "query GetById { project_source(ids: \"#{ps.id},#{p.id},#{@team.id}\") { dbid } }"
-    post :create, query: query
+    post :create, params: { query: query }
     assert_response :success
     assert_equal ps.id, JSON.parse(@response.body)['data']['project_source']['dbid']
   end
@@ -330,7 +330,7 @@ class GraphqlControllerTest < ActionController::TestCase
     p = create_project team: @team
     pm = create_project_media project: p
     query = "query GetById { project(ids: \"#{p.id},#{@team.id}\") { title, description} }"
-    post :create, query: query
+    post :create, params: { query: query }
     assert_response :success
     assert_equal p.title, JSON.parse(@response.body)['data']['project']['title']
     assert_equal p.description, JSON.parse(@response.body)['data']['project']['description']
@@ -504,7 +504,7 @@ class GraphqlControllerTest < ActionController::TestCase
       WebMock.disable_net_connect!
       id = a.graphql_id
       query = 'mutation update { updateAccount(input: { clientMutationId: "1", id: "' + id.to_s + '", refresh_account: 1 }) { account { id } } }'
-      post :create, query: query
+      post :create, params: { query: query }
       assert_response :success
     end
   end
@@ -533,14 +533,14 @@ class GraphqlControllerTest < ActionController::TestCase
     authenticate_with_user
     s = create_source user: create_user
     query = "query GetById { source(id: \"#{s.id}\") { name } }"
-    post :create, query: query
+    post :create, params: { query: query }
     assert_response 403
   end
 
   test "should get team by context" do
     authenticate_with_user
     t = create_team slug: 'context', name: 'Context Team'
-    post :create, query: 'query Team { team { name } }', team: 'context'
+    post :create, params: { query: 'query Team { team { name } }', team: 'context' }
     assert_response :success
     assert_equal 'Context Team', JSON.parse(@response.body)['data']['team']['name']
   end
@@ -549,7 +549,7 @@ class GraphqlControllerTest < ActionController::TestCase
     authenticate_with_user
     t1 = create_team slug: 'team1', name: 'Team 1'
     t2 = create_team slug: 'team2', name: 'Team 2'
-    post :create, query: 'query PublicTeam { public_team { name } }', team: 'team1'
+    post :create, params: { query: 'query PublicTeam { public_team { name } }', team: 'team1' }
     assert_response :success
     assert_equal 'Team 1', JSON.parse(@response.body)['data']['public_team']['name']
   end
@@ -558,7 +558,7 @@ class GraphqlControllerTest < ActionController::TestCase
     authenticate_with_user
     t1 = create_team slug: 'team1', name: 'Team 1'
     t2 = create_team slug: 'team2', name: 'Team 2'
-    post :create, query: 'query PublicTeam { public_team(slug: "team2") { name } }', team: 'team1'
+    post :create, params: { query: 'query PublicTeam { public_team(slug: "team2") { name } }', team: 'team1' }
     assert_response :success
     assert_equal 'Team 2', JSON.parse(@response.body)['data']['public_team']['name']
   end
@@ -566,7 +566,7 @@ class GraphqlControllerTest < ActionController::TestCase
   test "should not get team by context" do
     authenticate_with_user
     Team.delete_all
-    post :create, query: 'query Team { team { name } }', team: 'test'
+    post :create, params: { query: 'query Team { team { name } }', team: 'test' }
     assert_response 404
   end
 
@@ -576,10 +576,10 @@ class GraphqlControllerTest < ActionController::TestCase
     create_team_user user: u, team: t, role: 'editor'
 
     authenticate_with_user(u)
-    post :create, query: 'query Team { team { name } }', team: 'team-to-be-deleted'
+    post :create, params: { query: 'query Team { team { name } }', team: 'team-to-be-deleted' }
     assert_response :success
     t.inactive = true; t.save
-    post :create, query: 'query Team { team { name } }', team: 'team-to-be-deleted'
+    post :create, params: { query: 'query Team { team { name } }', team: 'team-to-be-deleted' }
     assert_response 404
   end
 
@@ -591,13 +591,13 @@ class GraphqlControllerTest < ActionController::TestCase
 
     authenticate_with_user(u)
     query = "query GetById { project(id: \"#{p.id},#{t.id}\") { title } }"
-    post :create, query: query
+    post :create, params: { query: query }
     assert_response :success
     assert_equal p.title, JSON.parse(@response.body)['data']['project']['title']
 
     t.inactive = true; t.save
     query = "query GetById { project(id: \"#{p.id},#{t.id}\") { title } }"
-    post :create, query: query
+    post :create, params: { query: query }
     assert_response 404
   end
 
@@ -610,13 +610,13 @@ class GraphqlControllerTest < ActionController::TestCase
 
     authenticate_with_user(u)
     query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { dbid } }"
-    post :create, query: query
+    post :create, params: { query: query }
     assert_response :success
     assert_equal pm.id, JSON.parse(@response.body)['data']['project_media']['dbid']
 
     t.inactive = true; t.save
     query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { dbid } }"
-    post :create, query: query
+    post :create, params: { query: query }
     assert_response 404
   end
 
@@ -636,15 +636,15 @@ class GraphqlControllerTest < ActionController::TestCase
 
     authenticate_with_user(u)
 
-    post :create, query: 'query Query { me { name } }', team: 'team1'
+    post :create, params: { query: 'query Query { me { name } }', team: 'team1' }
     assert_response :success
     assert_equal t1, u.reload.current_team
 
-    post :create, query: 'query Query { me { name } }', team: 'team2'
+    post :create, params: { query: 'query Query { me { name } }', team: 'team2' }
     assert_response :success
     assert_equal t1, u.reload.current_team
 
-    post :create, query: 'query Query { me { name } }', team: 'team3'
+    post :create, params: { query: 'query Query { me { name } }', team: 'team3' }
     assert_response :success
     assert_equal t3, u.reload.current_team
   end
@@ -664,7 +664,7 @@ class GraphqlControllerTest < ActionController::TestCase
       create_dynamic_annotation annotated: pm, annotator: u, annotation_type: 'test'
     end
     query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { last_status, domain, pusher_channel, account { url }, dbid, annotations_count(annotation_type: \"comment\"), user { name }, tags(first: 1) { edges { node { tag } } }, projects { edges { node { title } } }, log(first: 1000) { edges { node { event_type, object_after, updated_at, created_at, meta, object_changes_json, user { name }, annotation { id, created_at, updated_at }, projects(first: 2) { edges { node { title } } }, task { id }, tag { id }, teams(first: 2) { edges { node { slug } } } } } } } }"
-    post :create, query: query, team: 'team'
+    post :create, params: { query: query, team: 'team' }
     assert_response :success
     assert_not_equal 0, JSON.parse(@response.body)['data']['project_media']['log']['edges'].size
   end
@@ -678,7 +678,7 @@ class GraphqlControllerTest < ActionController::TestCase
     pm = create_project_media project: p
     create_comment annotated: pm, annotator: u
     query = "query GetById { project(id: \"#{p.id}\") { medias_count, project_medias(first: 1) { edges { node { permissions } } } } }"
-    post :create, query: query, team: 'team'
+    post :create, params: { query: query, team: 'team' }
     assert_response :success
     assert_not_equal '{}', JSON.parse(@response.body)['data']['project']['project_medias']['edges'][0]['node']['permissions']
   end
@@ -689,7 +689,7 @@ class GraphqlControllerTest < ActionController::TestCase
     t = create_team slug: 'team'
     create_team_user user: u, team: t, role: 'owner'
     query = "query GetById { team(id: \"#{t.id}\") { media_verification_statuses, source_verification_statuses } }"
-    post :create, query: query, team: 'team'
+    post :create, params: { query: query, team: 'team' }
     assert_response :success
   end
 
@@ -701,7 +701,7 @@ class GraphqlControllerTest < ActionController::TestCase
     p = create_project team: t
     m = create_media project_id: p.id
     query = "query GetById { media(ids: \"#{m.id},#{p.id}\") { verification_statuses } }"
-    post :create, query: query, team: 'team'
+    post :create, params: { query: query, team: 'team' }
     assert_response :success
   end
 
@@ -713,7 +713,7 @@ class GraphqlControllerTest < ActionController::TestCase
     p = create_project team: t
     pm = create_project_media project: p
     query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { team { name } } }"
-    post :create, query: query, team: 'team'
+    post :create, params: { query: query, team: 'team' }
     assert_response :success
     assert_equal t.name, JSON.parse(@response.body)['data']['project_media']['team']['name']
   end
@@ -725,21 +725,21 @@ class GraphqlControllerTest < ActionController::TestCase
     create_team_user user: u, team: t
     s = create_source team: t
     query = "query GetById { source(id: \"#{s.id}\") { verification_statuses } }"
-    post :create, query: query, team: 'team'
+    post :create, params: { query: query, team: 'team' }
     assert_response :success
   end
 
   test "should return 404 if public team does not exist" do
     authenticate_with_user
     Team.delete_all
-    post :create, query: 'query PublicTeam { public_team { name } }', team: 'foo'
+    post :create, params: { query: 'query PublicTeam { public_team { name } }', team: 'foo' }
     assert_response 404
   end
 
   test "should return null if public team is not found" do
     authenticate_with_user
     Team.delete_all
-    post :create, query: 'query FindPublicTeam { find_public_team(slug: "foo") { name } }', team: 'foo'
+    post :create, params: { query: 'query FindPublicTeam { find_public_team(slug: "foo") { name } }', team: 'foo' }
     assert_response :success
     assert_nil JSON.parse(@response.body)['data']['find_public_team']
   end
@@ -762,7 +762,7 @@ class GraphqlControllerTest < ActionController::TestCase
     query = "query { project(id: \"#{p.id}\") { project_medias(first: 10000) { edges { node { permissions, log(first: 10000) { edges { node { permissions, annotation { permissions, medias { edges { node { id } } } } } }  } } } } } }"
 
     assert_queries 380, '<' do
-      post :create, query: query, team: 'team'
+      post :create, params: { query: query, team: 'team' }
     end
 
     assert_response :success
@@ -773,7 +773,7 @@ class GraphqlControllerTest < ActionController::TestCase
    authenticate_with_user
    options = {"keyword"=>"foo", "sort"=>"recent_added", "sort_type"=>"DESC"}.to_json
    id = Base64.encode64("CheckSearch/#{options}")
-   post :create, query: "query Query { node(id: \"#{id}\") { id } }"
+   post :create, params: { query: "query Query { node(id: \"#{id}\") { id } }" }
    assert_equal id, JSON.parse(@response.body)['data']['node']['id']
  end
 
@@ -791,7 +791,7 @@ class GraphqlControllerTest < ActionController::TestCase
     file = Rack::Test::UploadedFile.new(path, 'image/png')
     query = 'mutation create { createProjectMedia(input: { media_type: "UploadedImage", url: "", quote: "", clientMutationId: "1", project_id: ' + p.id.to_s + ' }) { project_media { id } } }'
     assert_difference 'UploadedImage.count' do
-      post :create, query: query, file: file
+      post :create, params: { query: query, file: file }
     end
     assert_response :success
   end
@@ -799,7 +799,7 @@ class GraphqlControllerTest < ActionController::TestCase
   test "should get team by slug" do
     authenticate_with_user
     t = create_team slug: 'context', name: 'Context Team'
-    post :create, query: 'query Team { team(slug: "context") { name } }'
+    post :create, params: { query: 'query Team { team(slug: "context") { name } }' }
     assert_response :success
     assert_equal 'Context Team', JSON.parse(@response.body)['data']['team']['name']
   end
@@ -816,7 +816,7 @@ class GraphqlControllerTest < ActionController::TestCase
     end
     query = "query { project(id: \"#{p.id}\") { project_medias(first: 4) { edges { node { dbid } } } } }"
 
-    post :create, query: query, team: 'team'
+    post :create, params: { query: query, team: 'team' }
 
     assert_response :success
     assert_equal pms.last.dbid, JSON.parse(@response.body)['data']['project']['project_medias']['edges'].first['node']['dbid']
@@ -825,21 +825,21 @@ class GraphqlControllerTest < ActionController::TestCase
   test "should get language from header" do
     authenticate_with_user
     @request.headers['Accept-Language'] = 'pt-BR'
-    post :create, query: 'query Query { me { name } }'
+    post :create, params: { query: 'query Query { me { name } }' }
     assert_equal :pt, I18n.locale
   end
 
   test "should get default if language is not supported" do
     authenticate_with_user
     @request.headers['Accept-Language'] = 'mk-MK'
-    post :create, query: 'query Query { me { name } }'
+    post :create, params: { query: 'query Query { me { name } }' }
     assert_equal :en, I18n.locale
   end
 
   test "should get closest language" do
     authenticate_with_user
     @request.headers['Accept-Language'] = 'mk-MK, fr-FR'
-    post :create, query: 'query Query { me { name } }'
+    post :create, params: { query: 'query Query { me { name } }' }
     assert_equal :fr, I18n.locale
   end
 
@@ -876,7 +876,7 @@ class GraphqlControllerTest < ActionController::TestCase
     file = Rack::Test::UploadedFile.new(path, 'image/png')
     query = 'mutation create { createComment(input: { text: "Comment with image", clientMutationId: "1", annotated_type: "ProjectMedia", annotated_id: "' + pm.id.to_s + '" }) { comment { id } } }'
     assert_difference 'Comment.count' do
-      post :create, query: query, file: file
+      post :create, params: { query: query, file: file }
     end
     assert_response :success
     data = JSON.parse(Annotation.where(annotation_type: 'comment').last.content)
@@ -891,7 +891,7 @@ class GraphqlControllerTest < ActionController::TestCase
     authenticate_with_user(u)
     id = Base64.encode64("InvalidType/#{p.id}")
     query = "mutation destroy { destroyProject(input: { clientMutationId: \"1\", id: \"#{id}\" }) { deletedId } }"
-    post :create, query: query, team: @team.slug
+    post :create, params: { query: query, team: @team.slug }
     assert_response 400
   end
 
@@ -900,7 +900,7 @@ class GraphqlControllerTest < ActionController::TestCase
     p = create_project team: @team
     create_team_user user: u, team: @team, role: 'owner'
     query = "mutation resetPassword { resetPassword(input: { clientMutationId: \"1\", email: \"foo@bar.com\" }) { success } }"
-    post :create, query: query, team: @team.slug
+    post :create, params: { query: query, team: @team.slug }
     assert_response :success
   end
 
@@ -909,7 +909,7 @@ class GraphqlControllerTest < ActionController::TestCase
     p = create_project team: @team
     create_team_user user: u, team: @team, role: 'owner'
     query = "mutation resetPassword { resetPassword(input: { clientMutationId: \"1\", email: \"foo@bar.com\" }) { success } }"
-    post :create, query: query, team: @team.slug
+    post :create, params: { query: query, team: @team.slug }
     assert_response 404
   end
 
@@ -917,12 +917,12 @@ class GraphqlControllerTest < ActionController::TestCase
     u = create_user
     # Query with valid id
     query = "mutation resendConfirmation { resendConfirmation(input: { clientMutationId: \"1\", id: #{u.id} }) { success } }"
-    post :create, query: query, team: @team.slug
+    post :create, params: { query: query, team: @team.slug }
     assert_response :success
     # Query with non existing ID
     id = rand(6 ** 6)
     query = "mutation resendConfirmation { resendConfirmation(input: { clientMutationId: \"1\", id: #{id} }) { success } }"
-    post :create, query: query, team: @team.slug
+    post :create, params: { query: query, team: @team.slug }
     assert_response 404
   end
 
@@ -932,17 +932,17 @@ class GraphqlControllerTest < ActionController::TestCase
     # send invitation
     members = '[{\"role\":\"contributor\",\"email\":\"test1@local.com, test2@local.com\"},{\"role\":\"journalist\",\"email\":\"test3@local.com\"}]'
     query = 'mutation userInvitation { userInvitation(input: { clientMutationId: "1", members: "'+ members +'" }) { success } }'
-    post :create, query: query, team: @team.slug
+    post :create, params: { query: query, team: @team.slug }
     assert_response :success
     # resend/cancel invitation
     query = 'mutation resendCancelInvitation { resendCancelInvitation(input: { clientMutationId: "1", email: "notexist@local.com", action: "resend" }) { success } }'
-    post :create, query: query, team: @team.slug
+    post :create, params: { query: query, team: @team.slug }
     assert_response 404
     query = 'mutation resendCancelInvitation { resendCancelInvitation(input: { clientMutationId: "1", email: "test1@local.com", action: "resend" }) { success } }'
-    post :create, query: query, team: @team.slug
+    post :create, params: { query: query, team: @team.slug }
     assert_response :success
     query = 'mutation resendCancelInvitation { resendCancelInvitation(input: { clientMutationId: "1", email: "test1@local.com", action: "cancel" }) { success } }'
-    post :create, query: query, team: @team.slug
+    post :create, params: { query: query, team: @team.slug }
     assert_response :success
   end
 
@@ -950,10 +950,10 @@ class GraphqlControllerTest < ActionController::TestCase
     u = create_user
     authenticate_with_user(u)
     query = 'mutation deleteCheckUser { deleteCheckUser(input: { clientMutationId: "1", id: 111 }) { success } }'
-    post :create, query: query, team: @team.slug
+    post :create, params: { query: query, team: @team.slug }
     assert_response 404
     query = "mutation deleteCheckUser { deleteCheckUser(input: { clientMutationId: \"1\", id: #{u.id} }) { success } }"
-    post :create, query: query, team: @team.slug
+    post :create, params: { query: query, team: @team.slug }
     assert_response :success
   end
 
@@ -964,11 +964,11 @@ class GraphqlControllerTest < ActionController::TestCase
     a = create_account source: s, user: u, provider: 'slack', uid: '123456', omniauth_info: omniauth_info
     authenticate_with_user(u)
     query = "mutation userDisconnectLoginAccount { userDisconnectLoginAccount(input: { clientMutationId: \"1\", provider: \"#{a.provider}\", uid: \"#{a.uid}\" }) { success } }"
-    post :create, query: query, team: @team.slug
+    post :create, params: { query: query, team: @team.slug }
     assert_response :success
     User.stubs(:current).returns(nil)
     query = "mutation userDisconnectLoginAccount { userDisconnectLoginAccount(input: { clientMutationId: \"1\", provider: \"#{a.provider}\", uid: \"#{a.uid}\" }) { success } }"
-    post :create, query: query, team: @team.slug
+    post :create, params: { query: query, team: @team.slug }
     assert_response 404
     User.unstub(:current)
   end
@@ -977,7 +977,7 @@ class GraphqlControllerTest < ActionController::TestCase
     u = create_user
     t = u.send_reset_password_instructions
     query = "mutation changePassword { changePassword(input: { clientMutationId: \"1\", reset_password_token: \"#{t}\", password: \"123456789\", password_confirmation: \"123456789\" }) { success } }"
-    post :create, query: query
+    post :create, params: { query: query }
     sleep 1
     assert_response :success
     assert !JSON.parse(@response.body).has_key?('errors')
@@ -987,7 +987,7 @@ class GraphqlControllerTest < ActionController::TestCase
     u = create_user
     t = u.send_reset_password_instructions
     query = "mutation changePassword { changePassword(input: { clientMutationId: \"1\", reset_password_token: \"#{t}x\", password: \"123456789\", password_confirmation: \"123456789\" }) { success } }"
-    post :create, query: query
+    post :create, params: { query: query }
     sleep 1
     assert_response 400
   end
@@ -996,7 +996,7 @@ class GraphqlControllerTest < ActionController::TestCase
     u = create_user
     t = u.send_reset_password_instructions
     query = "mutation changePassword { changePassword(input: { clientMutationId: \"1\", reset_password_token: \"#{t}\", password: \"123456789\" }) { success } }"
-    post :create, query: query
+    post :create, params: { query: query }
     sleep 1
     assert_response :success
     assert JSON.parse(@response.body).has_key?('errors')
@@ -1006,7 +1006,7 @@ class GraphqlControllerTest < ActionController::TestCase
     u = create_user
     t = u.send_reset_password_instructions
     query = "mutation changePassword { changePassword(input: { clientMutationId: \"1\", reset_password_token: \"#{t}\", password: \"123456789\", password_confirmation: \"12345678\" }) { success } }"
-    post :create, query: query
+    post :create, params: { query: query }
     sleep 1
     assert_response 400
   end
@@ -1014,7 +1014,7 @@ class GraphqlControllerTest < ActionController::TestCase
   test "should access GraphQL if authenticated with API key" do
     authenticate_with_token
     assert_nil ApiKey.current
-    post :create, query: 'query Query { about { name, version } }'
+    post :create, params: { query: 'query Query { about { name, version } }' }
     assert_response :success
     assert_not_nil ApiKey.current
   end
@@ -1022,7 +1022,7 @@ class GraphqlControllerTest < ActionController::TestCase
   test "should get supported languages" do
     authenticate_with_user
     @request.headers['Accept-Language'] = 'pt-BR'
-    post :create, query: 'query Query { about { languages_supported } }'
+    post :create, params: { query: 'query Query { about { languages_supported } }' }
     assert_equal :pt, I18n.locale
     assert_response :success
     languages = JSON.parse(JSON.parse(@response.body)['data']['about']['languages_supported'])
@@ -1043,7 +1043,7 @@ class GraphqlControllerTest < ActionController::TestCase
     pm = create_project_media project: p
     a = create_dynamic_annotation annotation_type: 'verification_status', annotated: pm, set_fields: { verification_status_status: 'verified' }.to_json
     query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { annotation(annotation_type: \"verification_status\") { dbid }, field_value(annotation_type_field_name: \"verification_status:verification_status_status\"), annotations(annotation_type: \"verification_status\") { edges { node { dbid } } } } }"
-    post :create, query: query, team: @team.slug
+    post :create, params: { query: query, team: @team.slug }
     assert_response :success
     data = JSON.parse(@response.body)['data']['project_media']
     assert_equal a.id, data['annotation']['dbid'].to_i
@@ -1057,7 +1057,7 @@ class GraphqlControllerTest < ActionController::TestCase
     p = create_project team: @team
     fields = '{\"annotation_type\":\"syrian_archive_data\",\"set_fields\":\"{\\\"syrian_archive_data_id\\\":\\\"123456\\\"}\"}'
     query = 'mutation create { createProjectMedia(input: { url: "", media_type: "Claim", quote: "Test", clientMutationId: "1", set_annotation: "' + fields + '", project_id: ' + p.id.to_s + ' }) { project_media { id } } }'
-    post :create, query: query, team: @team.slug
+    post :create, params: { query: query, team: @team.slug }
     assert_response :success
     assert_equal '123456', ProjectMedia.last.get_annotations('syrian_archive_data').last.load.get_field_value('syrian_archive_data_id')
   end
@@ -1072,7 +1072,7 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_equal ['A'], t.team_tasks.map(&:label)
     task = '{\"label\":\"B\",\"task_type\":\"free_text\",\"description\":\"\",\"projects\":[],\"options\":[]}'
     query = 'mutation { updateTeam(input: { clientMutationId: "1", id: "' + id + '", remove_auto_task: "A", add_auto_task: "' + task + '" }) { team { id } } }'
-    post :create, query: query, team: t.slug
+    post :create, params: { query: query, team: t.slug }
     assert_response :success
     assert_equal ['B'], t.reload.team_tasks.map(&:label)
   end
@@ -1086,13 +1086,13 @@ class GraphqlControllerTest < ActionController::TestCase
     # media verification status
     statuses = '{\"label\":\"Verification Status\",\"default\":\"1\",\"active\":\"2\",\"statuses\":[{\"id\":\"1\",\"label\":\"1\",\"description\":\"\",\"completed\":\"\",\"style\":{\"color\":\"#f71f40\",\"backgroundColor\":\"#f71f40\",\"borderColor\":\"#f71f40\"}},{\"id\":\"2\",\"label\":\"2\",\"description\":\"\",\"completed\":\"\",\"style\":{\"color\":\"#e3dc1c\",\"backgroundColor\":\"#e3dc1c\",\"borderColor\":\"#e3dc1c\"}},{\"id\":\"3\",\"label\":\"3\",\"description\":\"\",\"completed\":\"1\",\"style\":{\"color\":\"#000000\",\"backgroundColor\":\"#000000\",\"borderColor\":\"#000000\"}}]}'
     query = 'mutation { updateTeam(input: { clientMutationId: "1", id: "' + id + '", add_media_verification_statuses: "' + statuses + '" }) { team { id } } }'
-    post :create, query: query, team: t.slug
+    post :create, params: { query: query, team: t.slug }
     assert_response :success
     assert_equal ["1", "2", "3"], t.reload.get_media_verification_statuses[:statuses].collect{ |t| t[:id] }.sort
     # add team tasks
     tasks = '[{\"label\":\"A?\",\"description\":\"\",\"required\":\"\",\"type\":\"free_text\",\"mapping\":{\"type\":\"text\",\"match\":\"\",\"prefix\":\"\"}},{\"label\":\"B?\",\"description\":\"\",\"required\":\"\",\"type\":\"single_choice\",\"options\":[{\"label\":\"A\"},{\"label\":\"B\"}],\"mapping\":{\"type\":\"text\",\"match\":\"\",\"prefix\":\"\"}}]'
     query = 'mutation { updateTeam(input: { clientMutationId: "1", id: "' + id + '", set_team_tasks: "' + tasks + '", disclaimer: "Test" }) { team { id } } }'
-    post :create, query: query, team: t.slug
+    post :create, params: { query: query, team: t.slug }
     assert_response :success
     assert_equal ['A?', 'B?'], t.reload.team_tasks.map(&:label).sort
     assert_equal 'Test', t.reload.get_disclaimer
@@ -1104,7 +1104,7 @@ class GraphqlControllerTest < ActionController::TestCase
     s = create_source user: u
     create_account_source source_id: s.id
     query = "query GetById { source(id: \"#{s.id}\") { account_sources { edges { node { source { id }, account { id } } } } } }"
-    post :create, query: query
+    post :create, params: { query: query }
     assert_response :success
   end
 
@@ -1123,7 +1123,7 @@ class GraphqlControllerTest < ActionController::TestCase
 
     query = 'query CheckSearch { search(query: "{\"archived\":1}") { id,medias(first:20){edges{node{id,dbid,url,quote,published,updated_at,metadata,log_count,verification_statuses,overridden,project_id,pusher_channel,domain,permissions,last_status,last_status_obj{id,dbid},project{id,dbid,title},project_source{dbid,id},media{url,quote,embed_path,thumbnail_path,id},user{name,source{dbid,accounts(first:10000){edges{node{url,id}}},id},id},team{slug,id},tags(first:10000){edges{node{tag,id}}}}}}}}'
 
-    post :create, query: query, team: 'team'
+    post :create, params: { query: query, team: 'team' }
 
     assert_response :success
     assert_equal 2, JSON.parse(@response.body)['data']['search']['medias']['edges'].size
@@ -1140,7 +1140,7 @@ class GraphqlControllerTest < ActionController::TestCase
 
     query = 'query CheckSearch { search(query: "{}") { id,medias(first:20){edges{node{id,dbid,url,quote,published,updated_at,metadata,log_count,verification_statuses,overridden,project_id,pusher_channel,domain,permissions,last_status,last_status_obj{id,dbid},project{id,dbid,title},project_source{dbid,id},media{url,quote,embed_path,thumbnail_path,id},user{name,source{dbid,accounts(first:10000){edges{node{url,id}}},id},id},team{slug,id},tags(first:10000){edges{node{tag,id}}}}}}}}'
 
-    post :create, query: query, team: 'team'
+    post :create, params: { query: query, team: 'team' }
 
     assert_response :success
     assert_equal 1, JSON.parse(@response.body)['data']['search']['medias']['edges'].size

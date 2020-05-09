@@ -38,7 +38,7 @@ class GreendayProjectsControllerTest < ActionController::TestCase
     u = create_omniauth_user
     create_team_user team: t, user: u
     authenticate_with_user(u)
-    get :show, id: t.id
+    get :show, params: { id: t.id }
     assert_response :success
     response = JSON.parse(@response.body)
     assert_equal name, response['name']
@@ -50,7 +50,7 @@ class GreendayProjectsControllerTest < ActionController::TestCase
     u = create_omniauth_user
     create_team_user team: t, user: u
     authenticate_with_user(u)
-    get :show, id: 0
+    get :show, params: { id: 0 }
     assert_response 404
   end
 
@@ -60,7 +60,7 @@ class GreendayProjectsControllerTest < ActionController::TestCase
     2.times { create_project(team: t) }
     create_team_user team: t, user: u
     authenticate_with_user(u)
-    get :collection, id: t.id
+    get :collection, params: { id: t.id }
     assert_response :success
     response = JSON.parse(@response.body)
     assert_equal 2, response['items'].size
@@ -73,7 +73,7 @@ class GreendayProjectsControllerTest < ActionController::TestCase
     authenticate_with_user(u)
     @request.env['RAW_POST_DATA'] = { name: 'Foo', project_id: t.id }.to_json
     assert_difference 'Project.count' do
-      post :collection, id: t.id
+      post :collection, params: { id: t.id }
     end
   end
 
@@ -100,7 +100,7 @@ class GreendayProjectsControllerTest < ActionController::TestCase
 
     @request.env['RAW_POST_DATA'] = { youtube_ids: ['abc', 'xyz'] }.to_json
     assert_difference 'ProjectMedia.count' do
-      post :batch_create, id: t.id
+      post :batch_create, params: { id: t.id }
     end
     assert_response :success
     response = JSON.parse(@response.body)
@@ -124,7 +124,7 @@ class GreendayProjectsControllerTest < ActionController::TestCase
     create_team_user team: t, user: u, role: 'owner'
     authenticate_with_user(u)
 
-    get :video, id: t.id
+    get :video, params: { id: t.id }
     assert_response :success
     response = JSON.parse(@response.body)
     assert_equal 1, response['items'].size
@@ -146,7 +146,7 @@ class GreendayProjectsControllerTest < ActionController::TestCase
 
     @request.env['RAW_POST_DATA'] = { text: random_string }.to_json
     assert_difference 'Comment.length' do
-      post :comments, id: t.id, youtube_id: '123'
+      post :comments, params: { id: t.id, youtube_id: '123' }
     end
     assert_response :success
   end
@@ -166,7 +166,7 @@ class GreendayProjectsControllerTest < ActionController::TestCase
     create_team_user team: t, user: u, role: 'owner'
     authenticate_with_user(u)
 
-    get :comments, id: t.id, youtube_id: '123'
+    get :comments, params: { id: t.id, youtube_id: '123' }
     assert_response :success
     response = JSON.parse(@response.body)
     assert_equal 3, response['items'].size
@@ -186,7 +186,7 @@ class GreendayProjectsControllerTest < ActionController::TestCase
     create_team_user team: t, user: u, role: 'owner'
     authenticate_with_user(u)
 
-    get :show_video, id: t.id, youtube_id: '123'
+    get :show_video, params: { id: t.id, youtube_id: '123' }
     assert_response :success
   end
 end

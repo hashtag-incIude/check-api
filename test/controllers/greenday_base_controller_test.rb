@@ -22,7 +22,7 @@ class GreendayBaseControllerTest < ActionController::TestCase
     t = create_team
     header = CONFIG['authorization_header'] || 'X-Token'
     @request.headers.merge!({ header => u.token })
-    get :ping, team: t.slug
+    get :ping, params: { team: t.slug }
     assert_equal t, Team.current
   end
 
@@ -31,7 +31,7 @@ class GreendayBaseControllerTest < ActionController::TestCase
     t = create_team
     header = CONFIG['authorization_header'] || 'X-Token'
     @request.headers.merge!({ header => u.token })
-    get :ping, team: t.slug
+    get :ping, params: { team: t.slug }
     assert_kind_of Ability, assigns(:ability)
   end
 
