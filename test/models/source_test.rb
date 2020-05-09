@@ -206,7 +206,7 @@ class SourceTest < ActiveSupport::TestCase
     with_current_user_and_team(u, t) do
       s = create_source user: create_user
       s.name = 'update source'
-      assert_nothing_raised RuntimeError do
+      assert_nothing_raised do
         s.save!
       end
     end
@@ -257,7 +257,7 @@ class SourceTest < ActiveSupport::TestCase
     raw_params = { name: "My source", user: create_user }
     params = ActionController::Parameters.new(raw_params)
 
-    assert_raise ActiveModel::ForbiddenAttributesError do
+    assert_raise ActionController::UnfilteredParameters do
       Source.create(params)
     end
   end

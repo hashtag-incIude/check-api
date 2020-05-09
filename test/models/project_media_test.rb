@@ -134,7 +134,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
       pm_own.reload
       assert_equal pm_own.project_id, p2.id
     end
-    assert_nothing_raised RuntimeError do
+    assert_nothing_raised do
       with_current_user_and_team(u2, t) do
         pm_own.disable_es_callbacks = true
         pm_own.destroy!
@@ -317,7 +317,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     raw_params = { project: create_project, user: create_user }
     params = ActionController::Parameters.new(raw_params)
 
-    assert_raise ActiveModel::ForbiddenAttributesError do
+    assert_raise ActionController::UnfilteredParameters do
       ProjectMedia.create(params)
     end
   end

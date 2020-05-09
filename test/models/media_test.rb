@@ -59,7 +59,7 @@ class MediaTest < ActiveSupport::TestCase
     m = nil
     with_current_user_and_team(u, t) do
       m = create_valid_media project_id: p.id
-      assert_nothing_raised RuntimeError do
+      assert_nothing_raised do
         m.save!
       end
     end
@@ -67,7 +67,7 @@ class MediaTest < ActiveSupport::TestCase
     u2 = create_user
     tu = create_team_user team: t, user: u2, role: 'journalist'
     with_current_user_and_team(u2, t) do
-      assert_nothing_raised RuntimeError do
+      assert_nothing_raised do
         m.save!
       end
       assert_raise RuntimeError do
@@ -77,7 +77,7 @@ class MediaTest < ActiveSupport::TestCase
 
     own_media = nil
     with_current_user_and_team(u2, t) do
-      assert_nothing_raised RuntimeError do
+      assert_nothing_raised do
         own_media = create_valid_media project_id: p.id
         own_media.save!
       end
@@ -87,7 +87,7 @@ class MediaTest < ActiveSupport::TestCase
     end
 
     with_current_user_and_team(u, t) do
-      assert_nothing_raised RuntimeError do
+      assert_nothing_raised do
         RequestStore.store[:disable_es_callbacks] = true
         m.destroy!
         RequestStore.store[:disable_es_callbacks] = false
@@ -449,7 +449,7 @@ class MediaTest < ActiveSupport::TestCase
     raw_params = { project: create_project, user: create_user }
     params = ActionController::Parameters.new(raw_params)
 
-    assert_raise ActiveModel::ForbiddenAttributesError do
+    assert_raise ActionController::UnfilteredParameters do
       Media.create(params)
     end
   end

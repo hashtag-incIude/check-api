@@ -304,7 +304,7 @@ class CommentTest < ActiveSupport::TestCase
     raw_params = { annotator: create_user, text: 'my comment' }
     params = ActionController::Parameters.new(raw_params)
 
-    assert_raise ActiveModel::ForbiddenAttributesError do
+    assert_raise ActionController::UnfilteredParameters do
       Comment.create(params)
     end
   end

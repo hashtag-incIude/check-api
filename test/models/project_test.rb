@@ -61,7 +61,7 @@ class ProjectTest < ActiveSupport::TestCase
     end
 
     with_current_user_and_team(u, t) do
-      assert_nothing_raised RuntimeError do
+      assert_nothing_raised do
         p.destroy!
       end
     end
@@ -321,7 +321,7 @@ class ProjectTest < ActiveSupport::TestCase
     raw_params = { title: "My project", team: create_team }
     params = ActionController::Parameters.new(raw_params)
 
-    assert_raise ActiveModel::ForbiddenAttributesError do
+    assert_raise ActionController::UnfilteredParameters do
       Project.create(params)
     end
   end

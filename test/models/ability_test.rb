@@ -670,7 +670,7 @@ class AbilityTest < ActiveSupport::TestCase
     assert_equal c.text, 'for testing'
 
     with_current_user_and_team(u, t) do
-      assert_nothing_raised RuntimeError do
+      assert_nothing_raised do
         c.destroy
       end
     end

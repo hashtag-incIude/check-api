@@ -303,7 +303,7 @@ class TeamTaskTest < ActiveSupport::TestCase
       assert_raises ActiveRecord::RecordNotFound do
         pm_tt.reload
       end
-      assert_nothing_raised ActiveRecord::RecordNotFound do
+      assert_nothing_raised do
         pm2_tt.reload
       end
     end

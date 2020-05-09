@@ -301,7 +301,7 @@ class ActiveSupport::TestCase
     query = "mutation create { create#{klass}(input: #{input}) { #{type} { #{response_fields.join(',')} } } }"
 
     assert_difference "#{klass}.count" do
-      post :create, query: query
+      post :create, params: { query: query }
       assert_response :success
       yield if block_given?
     end
@@ -318,7 +318,7 @@ class ActiveSupport::TestCase
     user = type == 'user' ? x1 : u
     authenticate_with_user(user)
     query = "query read { root { #{type.pluralize} { edges { node { #{field} } } } } }"
-    post :create, query: query
+    post :create, params: { query: query }
     yield if block_given?
     edges = JSON.parse(@response.body)['data']['root'][type.pluralize]['edges']
     n = [Comment, Tag, Task].include?(klass) ? klass.where(annotation_type: type.to_s).count : klass.count
@@ -341,7 +341,7 @@ class ActiveSupport::TestCase
     id = obj.graphql_id
     input = '{ clientMutationId: "1", id: "' + id.to_s + '", ' + attr.to_s + ': ' + to.to_json + ' }'
     query = "mutation update { update#{klass}(input: #{input}) { #{type} { #{attr} } } }"
-    post :create, query: query
+    post :create, params: { query: query }
     yield if block_given?
     assert_response :success
     assert_equal to, obj.reload.send(attr)
@@ -355,7 +355,7 @@ class ActiveSupport::TestCase
     id = obj.graphql_id
     query = "mutation destroy { destroy#{klass}(input: { clientMutationId: \"1\", id: \"#{id}\" }) { deletedId } }"
     assert_difference "#{klass}.count", -1 do
-      post :create, query: query
+      post :create, params: { query: query }
       yield if block_given?
     end
     assert_response :success
@@ -388,7 +388,7 @@ class ActiveSupport::TestCase
 
     type === 'user' ? authenticate_with_user(x1) : authenticate_with_user
 
-    post :create, query: query
+    post :create, params: { query: query }
 
     yield if block_given?
 
@@ -450,7 +450,7 @@ class ActiveSupport::TestCase
     query = "query read { root { #{type.pluralize} { edges { node #{node} } } } }"
     type === 'user' ? authenticate_with_user(obj) : authenticate_with_user
 
-    post :create, query: query
+    post :create, params: { query: query }
 
     yield if block_given?
 
@@ -476,7 +476,7 @@ class ActiveSupport::TestCase
     authenticate_with_user
     obj = send("create_#{type}", { field.to_sym => value, team: @team })
     query = "query GetById { #{type}(id: \"#{obj.id}\") { #{field} } }"
-    post :create, query: query
+    post :create, params: { query: query }
     assert_response :success
     document_graphql_query('get_by_id', type, query, @response.body)
     data = JSON.parse(@response.body)['data'][type]

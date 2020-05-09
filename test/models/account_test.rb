@@ -233,7 +233,7 @@ class AccountTest < ActiveSupport::TestCase
     raw_params = { user: user, source: source, team: team, url: random_url }
     params = ActionController::Parameters.new(raw_params)
 
-    assert_raise ActiveModel::ForbiddenAttributesError do
+    assert_raise ActionController::UnfilteredParameters do
       Account.create(params)
     end
   end
