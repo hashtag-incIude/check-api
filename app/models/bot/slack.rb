@@ -227,7 +227,7 @@ class Bot::Slack < BotUser
   DynamicAnnotation::Field.class_eval do
     include ::Bot::Slack::SlackMessage
 
-    create_or_update_slack_message on: :update, endpoint: :update, if: proc { |f| f.annotation.annotation_type.match(/_status$/) }
-    create_or_update_slack_message on: [:update, :create], endpoint: :update, if: proc { |f| f.annotation.annotation_type == 'metadata' }
+    create_or_update_slack_message on: :create, endpoint: :update, if: proc { |f| f.annotation.annotation_type == 'metadata' }
+    create_or_update_slack_message on: :update, endpoint: :update, if: proc { |f| f.annotation.annotation_type.match(/_status$/) || f.annotation.annotation_type == 'metadata' }
   end
 end

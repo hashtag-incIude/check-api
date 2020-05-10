@@ -299,7 +299,7 @@ class Bot::Smooch < BotUser
   def self.run(body)
     begin
       json = JSON.parse(body)
-      JSON::Validator.validate!(SMOOCH_PAYLOAD_JSON_SCHEMA, json)
+      JSON::Validator.validate!(SMOOCH_PAYLOAD_JSON_SCHEMA, json, parse_data: false)
       case json['trigger']
       when 'message:appUser'
         json['messages'].each do |message|

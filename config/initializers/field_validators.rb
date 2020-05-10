@@ -24,7 +24,7 @@ DynamicAnnotation::Field.class_eval do
   def field_validator_name_response_free_text
     schema = self.annotation&.task&.json_schema
     value = begin JSON.parse(self.value) rescue self.value end
-    errors.add(:base, I18n.t(:invalid_task_answer)) if !schema.blank? && !JSON::Validator.validate(schema, value)
+    errors.add(:base, I18n.t(:invalid_task_answer)) if !schema.blank? && !JSON::Validator.validate(schema, value, parse_data: false)
   end
 
   def field_validator_type_bot_response_format

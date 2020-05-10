@@ -120,7 +120,7 @@ class TeamTaskTest < ActiveSupport::TestCase
       assert_difference 'Annotation.where(annotation_type: "task").count', 3 do
         tt = create_team_task team_id: t.id, project_ids: [], description: 'Foo', options: [{ label: 'Foo' }]
       end
-      # update project list to specfic list
+      # update project list to specific list
       assert_difference 'Annotation.where(annotation_type: "task").count', -2 do
         tt.json_project_ids = [p.id].to_json
         tt.save!

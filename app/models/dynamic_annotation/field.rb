@@ -64,6 +64,7 @@ class DynamicAnnotation::Field < ApplicationRecord
   end
 
   def set_json_value
-    self.value_json = self.value if self.field_type == 'json' && self.respond_to?(:value_json)
+    value = begin JSON.parse(self.value) rescue self.value end
+    self.value_json = value if self.field_type == 'json' && self.respond_to?(:value_json)
   end
 end

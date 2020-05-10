@@ -11,14 +11,14 @@ module Workflow
       DynamicAnnotation::Field.class_eval do
         @@workflow_callbacks ||= []
 
-        [settings[:actions]].flatten.each do |action|
-          params = settings.merge({ action: action, if: condition })
-          callback = settings[:on] || :update
-          id = Digest::MD5.hexdigest([action.to_s, field_name, callback, settings].join)
-          unless @@workflow_callbacks.include?(id)
-            send "after_#{callback}", ->(obj) { obj.call_workflow_action(field_name, params) }, on: settings[:events]
-            @@workflow_callbacks << id
-          end
+        callback = settings[:on] || :update
+        id = Digest::MD5.hexdigest([field_name, callback, settings.inspect].join)
+        unless @@workflow_callbacks.include?(id)
+          params = settings.merge({ if: condition })
+          send "after_#{callback}", ->(obj) {
+            [settings[:actions]].flatten.each { |action| obj.call_workflow_action(field_name, params.merge({ action: action })) }
+          }, on: settings[:events]
+          @@workflow_callbacks << id
         end
       end
     end

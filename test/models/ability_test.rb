@@ -2149,7 +2149,7 @@ class AbilityTest < ActiveSupport::TestCase
       queries = assert_queries do
         ProjectMedia.where(project_id: p.id).permissioned.permissioned.count
       end
-      query = "SELECT COUNT(*) FROM \"project_medias\" WHERE \"project_medias\".\"project_id\" = $1 AND \"project_medias\".\"inactive\" = $2 AND \"project_medias\".\"id\" IN (#{pmids[0]}, #{pmids[1]}, #{pmids[2]})"
+      query = "SELECT COUNT(*) FROM \"project_medias\" WHERE \"project_medias\".\"project_id\" = $1 AND \"project_medias\".\"inactive\" = $2 AND \"project_medias\".\"id\" IN ($3, $4, $5)"
       assert_equal query, queries.first
     end
   end

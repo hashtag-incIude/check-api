@@ -517,7 +517,7 @@ class UserTest < ActiveSupport::TestCase
     raw_params = { name: 'My name', login: 'my-name' }
     params = ActionController::Parameters.new(raw_params)
 
-    assert_raise ActiveModel::ForbiddenAttributesError do
+    assert_raise ActionController::UnfilteredParameters do
       User.create(params)
     end
   end
@@ -741,11 +741,23 @@ class UserTest < ActiveSupport::TestCase
     u2 = create_user
     pm = create_project_media user: u
     ps = create_project_source user: u
-    assert_not u.destroy
+    assert_no_difference 'User.count' do
+      assert_raises RuntimeError do
+        u.destroy!
+      end
+    end
     pm.user = u2; pm.save!
-    assert_not u.destroy
+    assert_no_difference 'User.count' do
+      assert_raises RuntimeError do
+        u.destroy!
+      end
+    end
     ps.user = u2; ps.save!
-    assert u.destroy
+    assert_difference 'User.count', -1 do
+      assert_nothing_raised do
+        assert u.destroy!
+      end
+    end
   end
 
   test "should get profile image if user has no source" do

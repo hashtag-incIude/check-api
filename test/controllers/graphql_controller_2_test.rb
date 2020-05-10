@@ -549,7 +549,7 @@ class GraphqlController2Test < ActionController::TestCase
     assert_response :success
     response = JSON.parse(@response.body)
     assert response.has_key?('errors')
-    assert_match /invalid value/, response['errors'].first['message']
+    assert_match /Argument 'spreadsheet_url' on InputObject 'ImportSpreadsheetInput' is required/, response['errors'].first['message']
   end
 
   test "should not import spreadsheet if team_id is not present" do
@@ -566,7 +566,7 @@ class GraphqlController2Test < ActionController::TestCase
     assert_response :success
     response = JSON.parse(@response.body)
     assert response.has_key?('errors')
-    assert_match /invalid value/, response['errors'].first['message']
+    assert_match /Argument 'team_id' on InputObject 'ImportSpreadsheetInput' is required/, response['errors'].first['message']
   end
 
   test "should not import spreadsheet if user_id is not present" do
@@ -583,7 +583,7 @@ class GraphqlController2Test < ActionController::TestCase
     assert_response :success
     response = JSON.parse(@response.body)
     assert response.has_key?('errors')
-    assert_match /invalid value/, response['errors'].first['message']
+    assert_match /Argument 'user_id' on InputObject 'ImportSpreadsheetInput' is required/, response['errors'].first['message']
   end
 
   test "should not import spreadsheet if URL is invalid" do
@@ -1226,7 +1226,7 @@ class GraphqlController2Test < ActionController::TestCase
     v = create_version
     t = Team.last
     id = Base64.encode64("Version/#{v.id}")
-    qs = assert_queries 11 do
+    qs = assert_queries 12, '<' do
       post :create, params: { query: "query Query { node(id: \"#{id}\") { id } }", team: t.slug }
     end
     assert qs.select{ |q| q =~ /FROM "versions"/ }.empty?

@@ -476,8 +476,8 @@ class TaskTest < ActiveSupport::TestCase
     t.json_schema = schema
     t.save!
 
-    assert JSON::Validator.validate(t.reload.json_schema, { foo: 12, bar: 'test' })
-    assert !JSON::Validator.validate(t.reload.json_schema, { foo: 12 })
+    assert JSON::Validator.validate(t.reload.json_schema, { foo: 12, bar: 'test' }, parse_data: false)
+    assert !JSON::Validator.validate(t.reload.json_schema, { foo: 12 }, parse_data: false)
 
     schema = {
       type: 'string',
@@ -486,8 +486,8 @@ class TaskTest < ActiveSupport::TestCase
     t.json_schema = schema
     t.save!
 
-    assert JSON::Validator.validate(t.reload.json_schema, 'string')
-    assert !JSON::Validator.validate(t.reload.json_schema, 123)
+    assert JSON::Validator.validate(t.reload.json_schema, 'string', parse_data: false)
+    assert !JSON::Validator.validate(t.reload.json_schema, 123, parse_data: false)
 
     schema = {
       type: 'string',
@@ -497,8 +497,8 @@ class TaskTest < ActiveSupport::TestCase
     t.json_schema = schema
     t.save!
 
-    assert JSON::Validator.validate(t.reload.json_schema, 'string')
-    assert !JSON::Validator.validate(t.reload.json_schema, 'STRING')
+    assert JSON::Validator.validate(t.reload.json_schema, 'string', parse_data: false)
+    assert !JSON::Validator.validate(t.reload.json_schema, 'STRING', parse_data: false)
 
     schema = {
       type: 'string',
@@ -508,8 +508,8 @@ class TaskTest < ActiveSupport::TestCase
     t.json_schema = schema
     t.save!
 
-    assert JSON::Validator.validate(t.reload.json_schema, 'https://meedan.com')
-    assert !JSON::Validator.validate(t.reload.json_schema, 'Foo Bar')
+    assert JSON::Validator.validate(t.reload.json_schema, 'https://meedan.com', parse_data: false)
+    assert !JSON::Validator.validate(t.reload.json_schema, 'Foo Bar', parse_data: false)
   end
 
   test "should validate task answer against JSON schema" do

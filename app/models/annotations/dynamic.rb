@@ -207,7 +207,7 @@ class Dynamic < ApplicationRecord
 
   def fields_against_json_schema
     begin
-      JSON::Validator.validate!(self.json_schema, self.read_attribute(:data)) unless self.json_schema.blank?
+      JSON::Validator.validate!(self.json_schema, self.read_attribute(:data), parse_data: false) unless self.json_schema.blank?
     rescue JSON::Schema::ValidationError => e
       errors.add(:base, e.message)
     end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_05_06_223124) do
+ActiveRecord::Schema.define(version: 2020_05_10_191124) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -114,7 +114,7 @@ ActiveRecord::Schema.define(version: 2020_05_06_223124) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.boolean "singleton", default: true
-    t.jsonb "json_schema"
+    t.jsonb "json_schema", default: {}
     t.index ["json_schema"], name: "index_dynamic_annotation_annotation_types_on_json_schema", using: :gin
   end
 
@@ -145,7 +145,7 @@ ActiveRecord::Schema.define(version: 2020_05_06_223124) do
     t.text "value", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.jsonb "value_json", default: "{}"
+    t.jsonb "value_json", default: {}
     t.index ["annotation_id"], name: "index_dynamic_annotation_fields_on_annotation_id"
     t.index ["field_type"], name: "index_dynamic_annotation_fields_on_field_type"
     t.index ["value"], name: "translation_request_id", unique: true, where: "((field_name)::text = 'translation_request_id'::text)"

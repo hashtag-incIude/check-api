@@ -58,7 +58,7 @@ class Workflow::VerificationStatus < Workflow::Base
         report = report.load
         report.set_fields = report.data.merge({
           theme_color: pm.last_status_color,
-          status_label: pm.status_i18n(pm.last_verification_status)
+          status_label: pm.status_i18n(self.value)
         }).to_json
         report.save!
       end

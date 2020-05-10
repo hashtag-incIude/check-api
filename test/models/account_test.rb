@@ -65,7 +65,7 @@ class AccountTest < ActiveSupport::TestCase
     create_team_user user: u
     User.current = u
     a = create_account
-    assert_equal 2, a.versions.size
+    assert_equal 1, a.versions.size
     User.current = nil
   end
 
@@ -77,9 +77,8 @@ class AccountTest < ActiveSupport::TestCase
       a = create_account
       a.team = create_team
       a.save!
-      assert_equal 3, a.versions.size
+      assert_equal 2, a.versions.size
     end
-
   end
 
   test "should get user id from callback" do

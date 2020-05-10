@@ -197,7 +197,7 @@ module TeamDuplication
       @mapping[:Relationship].each_value do |copy|
         [:source_id, :target_id].each do |r|
           pm_mapping = @mapping.dig(:ProjectMedia, copy.send(r))
-          copy.update_column(r, pm_mapping.id) if pm_mapping
+          copy.send("#{r}=", pm_mapping.id) if pm_mapping
         end
       end
     end
@@ -205,7 +205,7 @@ module TeamDuplication
     def self.update_project_medias
       return if @mapping[:ProjectMedia].blank?
       @mapping[:ProjectMedia].each_value do |copy|
-        copy.update_column(:team_id, @copy_team.id)
+        copy.team_id = @copy_team.id
       end
     end
   end

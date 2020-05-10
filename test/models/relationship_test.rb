@@ -160,11 +160,11 @@ class RelationshipTest < ActiveSupport::TestCase
     pm = create_project_media project: @project
     id = pm.id
     pm.delete
-    assert_no_difference 'ProjectMedia.count' do
-      assert_no_difference 'Relationship.count' do
-        assert_raises RuntimeError do
-          create_project_media related_to_id: id, project: @project
-        end
+    pm2 = create_project_media project: @project
+    assert_no_difference 'Relationship.count' do
+      assert_raises RuntimeError do
+        pm2.related_to_id = id
+        pm2.save!
       end
     end
   end

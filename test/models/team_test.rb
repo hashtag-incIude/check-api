@@ -2372,4 +2372,11 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal 2, p1.reload.project_media_projects.count
     assert_equal 0, p2.reload.project_media_projects.count
   end
+
+  test "should duplicate team" do
+    t = create_team
+    assert_difference 'Team.count' do
+      Team.duplicate(t)
+    end
+  end
 end
