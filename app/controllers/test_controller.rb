@@ -115,7 +115,7 @@ class TestController < ApplicationController
   def new_task
     user = User.where(email: params[:email]).last
     pm = ProjectMedia.find(params[:pm_id])
-    t = create_task({ annotated: pm, annotator: user }.merge(params))
+    t = create_task({ annotated: pm, annotator: user }.merge(params.permit!.to_h))
     render_success 'task', t
   end
 
@@ -203,6 +203,6 @@ class TestController < ApplicationController
   private
 
   def check_environment
-    (render(text: 'Only available in test mode', status: 400) and return) unless Rails.env === 'test'
+    (render(plain: 'Only available in test mode', status: 400) and return) unless Rails.env === 'test'
   end
 end

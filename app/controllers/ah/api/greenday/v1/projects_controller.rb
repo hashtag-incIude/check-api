@@ -158,7 +158,7 @@ class Ah::Api::Greenday::V1::ProjectsController < Ah::Api::Greenday::V1::BaseCon
   def check_if_team_exists
     id = params[:id]
     @team = Team.where(id: id).last.extend(Montage::Project)
-    render(text: 'Not Found', status: 404) if @team.nil?
+    render(plain: 'Not Found', status: 404) if @team.nil?
   end
 
   def check_if_project_media_exists

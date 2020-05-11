@@ -79,9 +79,7 @@ class WebhooksControllerTest < ActionController::TestCase
     payload = { type: 'screenshot', url: url, screenshot_taken: 1, screenshot_url: 'http://pender/screenshot.png' }.to_json
     sig = 'sha1=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), CONFIG['secret_token'], payload)
     @request.headers['X-Signature'] = sig
-    @request.env['RAW_POST_DATA'] = payload
-    post :index, params: { name: :keep }
-    @request.env.delete('RAW_POST_DATA')
+    post :index, params: { name: :keep }, body: payload
     assert_response :success
     f = JSON.parse(pm.get_annotations('archiver').last.load.get_field_value('pender_archive_response'))
     assert_equal 'http://pender/screenshot.png', f['screenshot_url']
@@ -113,9 +111,7 @@ class WebhooksControllerTest < ActionController::TestCase
     payload = { url: 'http://anothertest.com', screenshot_taken: 1, screenshot_url: 'http://pender/screenshot.png' }.to_json
     sig = 'sha1=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), CONFIG['secret_token'], payload)
     @request.headers['X-Signature'] = sig
-    @request.env['RAW_POST_DATA'] = payload
-    post :index, params: { name: :keep }
-    @request.env.delete('RAW_POST_DATA')
+    post :index, params: { name: :keep }, body: payload
     assert_response :success
     f = JSON.parse(pm.get_annotations('archiver').last.load.get_field_value('pender_archive_response'))
     assert_equal [], f.keys
@@ -133,9 +129,7 @@ class WebhooksControllerTest < ActionController::TestCase
     payload = { url: url, screenshot_taken: 1, screenshot_url: 'http://pender/screenshot.png' }.to_json
     sig = 'sha1=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), CONFIG['secret_token'], payload)
     @request.headers['X-Signature'] = sig
-    @request.env['RAW_POST_DATA'] = payload
-    post :index, params: { name: :keep }
-    @request.env.delete('RAW_POST_DATA')
+    post :index, params: { name: :keep }, body: payload
     assert_response :success
   end
 
@@ -165,9 +159,7 @@ class WebhooksControllerTest < ActionController::TestCase
     payload = { url: url, screenshot_taken: 1, screenshot_url: 'http://pender/screenshot.png' }.to_json
     sig = 'sha1=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), CONFIG['secret_token'], payload)
     @request.headers['X-Signature'] = sig
-    @request.env['RAW_POST_DATA'] = payload
-    post :index, params: { name: :keep }
-    @request.env.delete('RAW_POST_DATA')
+    post :index, params: { name: :keep }, body: payload
     assert_response :success
     Team.any_instance.unstub(:get_limits_keep)
   end
@@ -191,9 +183,7 @@ class WebhooksControllerTest < ActionController::TestCase
     payload = { url: url, screenshot_taken: 1, screenshot_url: 'http://pender/screenshot.png' }.to_json
     sig = 'sha1=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), CONFIG['secret_token'], payload)
     @request.headers['X-Signature'] = sig
-    @request.env['RAW_POST_DATA'] = payload
-    post :index, params: { name: :keep }
-    @request.env.delete('RAW_POST_DATA')
+    post :index, params: { name: :keep }, body: payload
     assert_response :success
   end
 end

@@ -26,8 +26,7 @@ class GreendayProjectsControllerTest < ActionController::TestCase
     u = create_omniauth_user info: { name: 'Test User' }
     authenticate_with_user(u)
     assert_difference 'Team.count' do
-      @request.env['RAW_POST_DATA'] = { name: 'Foo', description: 'Bar' }.to_json
-      post :create
+      post :create, body: { name: 'Foo', description: 'Bar' }.to_json
       assert_response :success
     end
   end
@@ -71,9 +70,8 @@ class GreendayProjectsControllerTest < ActionController::TestCase
     u = create_user
     create_team_user team: t, user: u, role: 'owner'
     authenticate_with_user(u)
-    @request.env['RAW_POST_DATA'] = { name: 'Foo', project_id: t.id }.to_json
     assert_difference 'Project.count' do
-      post :collection, params: { id: t.id }
+      post :collection, params: { id: t.id }, body: { name: 'Foo', project_id: t.id }.to_json
     end
   end
 
@@ -98,9 +96,8 @@ class GreendayProjectsControllerTest < ActionController::TestCase
     response = '{"type":"media","data":' + data.to_json + '}'
     WebMock.stub_request(:get, pender_url).with({ query: { url: url } }).to_return(body: response)
 
-    @request.env['RAW_POST_DATA'] = { youtube_ids: ['abc', 'xyz'] }.to_json
     assert_difference 'ProjectMedia.count' do
-      post :batch_create, params: { id: t.id }
+      post :batch_create, params: { id: t.id }, body: { youtube_ids: ['abc', 'xyz'] }.to_json
     end
     assert_response :success
     response = JSON.parse(@response.body)
@@ -144,9 +141,8 @@ class GreendayProjectsControllerTest < ActionController::TestCase
     create_team_user team: t, user: u, role: 'owner'
     authenticate_with_user(u)
 
-    @request.env['RAW_POST_DATA'] = { text: random_string }.to_json
     assert_difference 'Comment.length' do
-      post :comments, params: { id: t.id, youtube_id: '123' }
+      post :comments, params: { id: t.id, youtube_id: '123' }, body: { text: random_string }.to_json
     end
     assert_response :success
   end

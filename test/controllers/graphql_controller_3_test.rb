@@ -33,7 +33,7 @@ class GraphqlController3Test < ActionController::TestCase
     query = "query { search(query: \"{}\") { medias(first: 10000) { edges { node { dbid, media { dbid } } } } } }"
 
     # This number should be always CONSTANT regardless the number of medias and annotations above
-    assert_queries (15) do
+    assert_queries 16, '<' do
       post :create, params: { query: query, team: 'team' }
     end
 
@@ -327,20 +327,6 @@ class GraphqlController3Test < ActionController::TestCase
     assert_response 404
   end
 
-  test "should handle nested error" do
-    u = create_user
-    t = create_team
-    create_team_user team: t, user: u
-    authenticate_with_user(u)
-    p = create_project team: t
-    pm = create_project_media project: p
-    RelayOnRailsSchema.stubs(:execute).raises(GraphQL::Batch::NestedError)
-    query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { dbid } }"
-    post :create, params: { query: query, team: t.slug }
-    assert_response 400
-    RelayOnRailsSchema.unstub(:execute)
-  end
-
   test "should return project medias with provided URL that user has access to" do
     l = create_valid_media
     u = create_user
@@ -393,11 +379,11 @@ class GraphqlController3Test < ActionController::TestCase
     t1 = create_team slug: 'batch-1', name: 'Batch 1'
     t2 = create_team slug: 'batch-2', name: 'Batch 2'
     t3 = create_team slug: 'batch-3', name: 'Batch 3'
-    post :batch, params: { _json: [ }
+    post :batch, params: { _json: [
       { query: 'query { team(slug: "batch-1") { name } }', variables: {}, id: 'q1' },
       { query: 'query { team(slug: "batch-2") { name } }', variables: {}, id: 'q2' },
       { query: 'query { team(slug: "batch-3") { name } }', variables: {}, id: 'q3' }
-    ]
+    ] }
     result = JSON.parse(@response.body)
     assert_equal 'Batch 1', result.find{ |t| t['id'] == 'q1' }['payload']['data']['team']['name']
     assert_equal 'Batch 2', result.find{ |t| t['id'] == 'q2' }['payload']['data']['team']['name']
@@ -466,7 +452,7 @@ class GraphqlController3Test < ActionController::TestCase
       }}
     '
 
-    assert_queries 17, '=' do
+    assert_queries 18, '<' do
       post :create, params: { query: query, team: 'team' }
     end
 
