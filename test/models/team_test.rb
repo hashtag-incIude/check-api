@@ -1982,4 +1982,22 @@ class TeamTest < ActiveSupport::TestCase
     assert_equal 2, p1.reload.project_media_projects.count
     assert_equal 0, p2.reload.project_media_projects.count
   end
+
+  test "should upload strings to Transifex when custom statuses are changed" do
+    t = create_team
+    t = Team.find(t.id)
+    CheckI18n.stubs(:upload_custom_strings_to_transifex_in_background).once
+    value = {
+      label: 'Field label',
+      default: '1',
+      active: '2',
+      statuses: [
+        { id: '1', label: 'Custom Status 1', description: 'The meaning of this status', style: 'red', completed: '1' },
+        { id: '2', label: 'Custom Status 2', description: 'The meaning of that status', style: 'blue', completed: '0' }
+      ]
+    }
+    t.set_media_verification_statuses(value)
+    t.save!
+    CheckI18n.unstub(:upload_custom_strings_to_transifex_in_background)
+  end
 end

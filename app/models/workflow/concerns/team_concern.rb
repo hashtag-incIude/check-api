@@ -2,7 +2,7 @@ module Workflow
   module Concerns
     module TeamConcern
       Team.class_eval do
-        validate :change_custom_media_statuses, if: proc { |t| t.did_custom_statuses_change? }
+        validate :change_custom_media_statuses, if: proc { |t| t.did_custom_statuses_change?(t.settings_was) }
         validate :custom_statuses_format, unless: proc { |t| t.settings.nil? || !t.changes_to_save.dig('settings') }
 
         ::Workflow::Workflow.workflow_ids.each do |id|
@@ -50,10 +50,10 @@ module Workflow
           self.send("get_media_#{pm.default_project_media_status_type.pluralize}")
         end
 
-        def did_custom_statuses_change?
+        def did_custom_statuses_change?(old)
           changed = false
           ::Workflow::Workflow.workflow_ids.each do |id|
-            statuses_were = self.settings_was.to_h.with_indifferent_access["media_#{id.pluralize}"]
+            statuses_were = old.to_h.with_indifferent_access["media_#{id.pluralize}"]
             statuses_are = self.settings.to_h.with_indifferent_access["media_#{id.pluralize}"]
             changed = true if (statuses_were != statuses_are && (!statuses_were.blank? || !statuses_are.blank?))
           end

@@ -3,5 +3,5 @@ begin
   ActiveRecord::Base.connection
   CcDeville && Bot::Keep && Workflow::Workflow.workflows && CheckS3 && CheckI18n
 rescue
-  # Database doesn't exist
+  puts "No database found"
 end
