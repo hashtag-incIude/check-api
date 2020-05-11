@@ -163,8 +163,8 @@ class Ah::Api::Greenday::V1::ProjectsController < Ah::Api::Greenday::V1::BaseCon
 
   def check_if_project_media_exists
     @team = Team.where(id: params[:id]).last.extend(Montage::Project)
-    render(text: 'Not Found', status: 404) and return if @team.nil?
+    render(plain: 'Not Found', status: 404) and return if @team.nil?
     @pms = ProjectMedia.get_all_by_youtube_id(params[:youtube_id], @team.id).collect{ |pm| pm.extend(Montage::Video) }
-    render(text: 'Not Found', status: 404) and return if @pms.empty?
+    render(plain: 'Not Found', status: 404) and return if @pms.empty?
   end
 end

@@ -281,20 +281,6 @@ class AdminIntegrationTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test "should duplicate a team" do
-    sign_in @admin_user
-    team = create_team
-    create_team_user team: team, user: @user, role: 'owner'
-
-    get "/admin/team/#{team.id}/duplicate_team"
-    assert_response :success
-    assert_template 'duplicate_team'
-
-    post "/admin/team/#{team.id}/duplicate_team"
-    assert_response :success
-    assert_template 'duplicate_team'
-  end
-
   test "should access Sidekiq UI only if super admin" do
     user = create_user
     user.is_admin = true

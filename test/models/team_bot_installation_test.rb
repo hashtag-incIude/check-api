@@ -269,4 +269,11 @@ class TeamBotInstallationTest < ActiveSupport::TestCase
       create_team_bot_installation(user_id: tb.id, json_settings: s.to_json)
     end
   end
+
+  test "should change team bot installation role" do
+    i = create_team_bot_installation
+    tu = TeamUser.find(i.id)
+    tu.role = 'journalist'
+    tu.save!
+  end
 end

@@ -261,7 +261,7 @@ module TeamRules
   end
 
   def rules_changed?
-    rules_were = self.settings_was.to_h.with_indifferent_access[:rules]
+    rules_were = self.settings_before_last_save.to_h.with_indifferent_access[:rules]
     rules_are = self.get_rules
     rules_were != rules_are && (!rules_were.blank? || !rules_are.blank?)
   end

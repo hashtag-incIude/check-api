@@ -15,5 +15,4 @@ class RegistrationMailer < ApplicationMailer
     @body_key = (provider.blank? && user.encrypted_password?) ? "both_emails" : "one_email"
     mail(to: @user.email, subject: I18n.t("mails_notifications.duplicated.subject", app_name: CONFIG['app_name'])) unless @user.email.blank?
   end
-
 end

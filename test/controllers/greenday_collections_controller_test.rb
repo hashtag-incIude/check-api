@@ -23,8 +23,7 @@ class GreendayCollectionsControllerTest < ActionController::TestCase
     create_team_user team: t, user: u, role: 'owner'
     p = create_project team: t, title: 'Foo'
     assert_equal 'Foo', p.reload.title
-    @request.env['RAW_POST_DATA'] = { name: 'Bar' }.to_json
-    post :update, params: { collection_id: p.id, project_id: t.id }
+    post :update, params: { collection_id: p.id, project_id: t.id }, body: { name: 'Bar' }.to_json
     assert_response :success
     assert_equal 'Bar', p.reload.title
   end
@@ -59,10 +58,9 @@ class GreendayCollectionsControllerTest < ActionController::TestCase
 
     m = create_media url: url
     create_project_media media: m, project: p
-
-    @request.env['RAW_POST_DATA'] = { youtube_ids: ['abc', 'xyz'] }.to_json
+ 
     assert_no_difference 'ProjectMedia.count' do
-      post :add_batch, params: { collection_id: p.id, project_id: t.id }
+      post :add_batch, params: { collection_id: p.id, project_id: t.id }, body: { youtube_ids: ['abc', 'xyz'] }.to_json
     end
     assert_response :success
   end

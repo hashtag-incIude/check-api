@@ -321,4 +321,10 @@ class TeamUserTest < ActiveSupport::TestCase
     end
   end
 
+  test "should update team user" do
+    tu = create_team_user
+    tu = TeamUser.find(tu.id)
+    tu.updated_at = Time.now
+    tu.save!
+  end
 end

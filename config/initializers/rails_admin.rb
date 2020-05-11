@@ -5,11 +5,9 @@ require Rails.root.join('lib', 'rails_admin', 'yaml_field.rb')
 require Rails.root.join('lib', 'rails_admin', 'dashboard.rb')
 require Rails.root.join('lib', 'rails_admin', 'edit.rb')
 require Rails.root.join('lib', 'rails_admin', 'delete.rb')
-require Rails.root.join('lib', 'rails_admin', 'duplicate_team.rb')
 RailsAdmin::Config::Actions.register(RailsAdmin::Config::Actions::SendResetPasswordEmail)
 RailsAdmin::Config::Actions.register(RailsAdmin::Config::Actions::ExportProject)
 RailsAdmin::Config::Actions.register(RailsAdmin::Config::Actions::ExportImages)
-RailsAdmin::Config::Actions.register(RailsAdmin::Config::Actions::DuplicateTeam)
 RailsAdmin::Config::Actions.register(RailsAdmin::Config::Fields::Types::Yaml)
 
 RailsAdmin.config do |config|
@@ -56,9 +54,6 @@ RailsAdmin.config do |config|
     end
     export_images do
       only ['Project']
-    end
-    duplicate_team do
-      only ['Team']
     end
 
     ## With an audit adapter, you can add:

@@ -54,6 +54,6 @@ class Ah::Api::Greenday::V1::CollectionsController < Ah::Api::Greenday::V1::Base
 
   def check_if_project_exists
     @project = Project.where(id: params['collection_id'], team_id: params['project_id']).last.extend(Montage::Collection)
-    render(text: 'Not Found', status: 404) if @project.nil?
+    render(plain: 'Not Found', status: 404) if @project.nil?
   end
 end
