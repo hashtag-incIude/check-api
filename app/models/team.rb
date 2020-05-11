@@ -8,7 +8,6 @@ class Team < ApplicationRecord
   include TeamValidations
   include TeamAssociations
   include TeamPrivate
-  include TeamDuplication
   include TeamImport
   include TeamRules
 
