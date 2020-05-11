@@ -367,7 +367,7 @@ class TestControllerTest < ActionController::TestCase
     data = { phone: '123', app_name: 'Test' }.to_json
     p = create_project
     assert_difference 'Dynamic.count', 2 do
-      get :new_dynamic_annotation, params: { { set_action: 'deactivate', annotated_type: 'Project', annotated_id: p.id, annotation_type: 'smooch_user', fields: 'id,app_id,data', types: 'text,text,json', values: 'test,test,' + data } }
+      get :new_dynamic_annotation, params: { set_action: 'deactivate', annotated_type: 'Project', annotated_id: p.id, annotation_type: 'smooch_user', fields: 'id,app_id,data', types: 'text,text,json', values: 'test,test,' + data }
     end
     assert_equal 'human_mode', CheckStateMachine.new('test').state.value
     assert_response :success
@@ -378,7 +378,7 @@ class TestControllerTest < ActionController::TestCase
     data = { phone: '123', app_name: 'Test' }.to_json
     p = create_project
     assert_no_difference 'Dynamic.count' do
-      get :new_dynamic_annotation, params: { { annotated_type: 'Project', annotated_id: p.id, annotation_type: 'smooch_user', fields: 'id,app_id,data', types: 'text,text,json', values: 'test,test,' + data } }
+      get :new_dynamic_annotation, params: { annotated_type: 'Project', annotated_id: p.id, annotation_type: 'smooch_user', fields: 'id,app_id,data', types: 'text,text,json', values: 'test,test,' + data }
     end
     assert_response 400
     Rails.unstub(:env)
@@ -387,7 +387,7 @@ class TestControllerTest < ActionController::TestCase
   test "should save cache entry" do
     key = random_string
     value = random_string
-    get :new_cache_key, params: { { key: key, value: value } }
+    get :new_cache_key, params: { key: key, value: value }
     assert_equal value, Rails.cache.read(key)
     assert_response :success
   end
@@ -396,7 +396,7 @@ class TestControllerTest < ActionController::TestCase
     Rails.stubs(:env).returns('development')
     key = random_string
     value = random_string
-    get :new_cache_key, params: { { key: key, value: value } }
+    get :new_cache_key, params: { key: key, value: value }
     assert_nil Rails.cache.read(key)
     assert_response 400
     Rails.unstub(:env)
