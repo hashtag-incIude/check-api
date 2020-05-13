@@ -68,4 +68,6 @@ Rails.application.configure do
   end
   config.lograge.formatter = Lograge::Formatters::Json.new
   config.log_level = :debug
+
+  config.hosts = ['api', 'localhost']
 end

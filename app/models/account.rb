@@ -145,7 +145,12 @@ class Account < ApplicationRecord
 
   def create_account_source(source)
     return if self.disable_account_source_creation
-    self.sources << source
+    as = AccountSource.new
+    as.account = self
+    as.source = source
+    as.skip_check_ability = true
+    as.save!
+    self.skip_check_ability = true
     self.save!
   end
 

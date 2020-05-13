@@ -10,6 +10,9 @@ ENV['RAILS_ADMIN_THEME'] = 'material'
 
 module Check
   class Application < Rails::Application
+   config.middleware.use ActionDispatch::Cookies
+   config.middleware.use ActionDispatch::Session::CookieStore, key: "_check_#{Rails.env}"
+
     config.generators do |g|
       g.javascripts false
       g.stylesheets false

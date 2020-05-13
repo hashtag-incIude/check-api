@@ -15,9 +15,10 @@ module Workflow
         id = Digest::MD5.hexdigest([field_name, callback, settings.inspect].join)
         unless @@workflow_callbacks.include?(id)
           params = settings.merge({ if: condition })
+          on = settings[:events] ? { on: settings[:events] } : {}
           send "after_#{callback}", ->(obj) {
             [settings[:actions]].flatten.each { |action| obj.call_workflow_action(field_name, params.merge({ action: action })) }
-          }, on: settings[:events]
+          }, on
           @@workflow_callbacks << id
         end
       end
