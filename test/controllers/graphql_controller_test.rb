@@ -73,7 +73,7 @@ class GraphqlControllerTest < ActionController::TestCase
   test "should return 404 if object does not exist" do
     authenticate_with_user
     post :create, params: { query: 'query GetById { project_media(ids: "99999,99999") { id } }' }
-    assert_response 404
+    assert_response :success
   end
 
   test "should set context team" do
@@ -567,7 +567,7 @@ class GraphqlControllerTest < ActionController::TestCase
     authenticate_with_user
     Team.delete_all
     post :create, params: { query: 'query Team { team { name } }', team: 'test' }
-    assert_response 404
+    assert_response :success
   end
 
   test "should not get teams marked as deleted" do
@@ -580,7 +580,7 @@ class GraphqlControllerTest < ActionController::TestCase
     assert_response :success
     t.inactive = true; t.save
     post :create, params: { query: 'query Team { team { name } }', team: 'team-to-be-deleted' }
-    assert_response 404
+    assert_response :success
   end
 
   test "should not get projects from teams marked as deleted" do
@@ -598,7 +598,7 @@ class GraphqlControllerTest < ActionController::TestCase
     t.inactive = true; t.save
     query = "query GetById { project(id: \"#{p.id},#{t.id}\") { title } }"
     post :create, params: { query: query }
-    assert_response 404
+    assert_response :success
   end
 
   test "should not get project medias from teams marked as deleted" do
@@ -617,7 +617,7 @@ class GraphqlControllerTest < ActionController::TestCase
     t.inactive = true; t.save
     query = "query GetById { project_media(ids: \"#{pm.id},#{p.id}\") { dbid } }"
     post :create, params: { query: query }
-    assert_response 404
+    assert_response :success
   end
 
   test "should update current team based on context team" do
@@ -733,7 +733,7 @@ class GraphqlControllerTest < ActionController::TestCase
     authenticate_with_user
     Team.delete_all
     post :create, params: { query: 'query PublicTeam { public_team { name } }', team: 'foo' }
-    assert_response 404
+    assert_response :success
   end
 
   test "should return null if public team is not found" do
@@ -910,7 +910,7 @@ class GraphqlControllerTest < ActionController::TestCase
     create_team_user user: u, team: @team, role: 'owner'
     query = "mutation resetPassword { resetPassword(input: { clientMutationId: \"1\", email: \"foo@bar.com\" }) { success } }"
     post :create, params: { query: query, team: @team.slug }
-    assert_response 404
+    assert_response :success
   end
 
   test "should resend confirmation" do
@@ -923,7 +923,7 @@ class GraphqlControllerTest < ActionController::TestCase
     id = rand(6 ** 6)
     query = "mutation resendConfirmation { resendConfirmation(input: { clientMutationId: \"1\", id: #{id} }) { success } }"
     post :create, params: { query: query, team: @team.slug }
-    assert_response 404
+    assert_response :success
   end
 
   test "should handle user invitations" do
@@ -937,7 +937,7 @@ class GraphqlControllerTest < ActionController::TestCase
     # resend/cancel invitation
     query = 'mutation resendCancelInvitation { resendCancelInvitation(input: { clientMutationId: "1", email: "notexist@local.com", action: "resend" }) { success } }'
     post :create, params: { query: query, team: @team.slug }
-    assert_response 404
+    assert_response :success
     query = 'mutation resendCancelInvitation { resendCancelInvitation(input: { clientMutationId: "1", email: "test1@local.com", action: "resend" }) { success } }'
     post :create, params: { query: query, team: @team.slug }
     assert_response :success
@@ -951,7 +951,7 @@ class GraphqlControllerTest < ActionController::TestCase
     authenticate_with_user(u)
     query = 'mutation deleteCheckUser { deleteCheckUser(input: { clientMutationId: "1", id: 111 }) { success } }'
     post :create, params: { query: query, team: @team.slug }
-    assert_response 404
+    assert_response :success
     query = "mutation deleteCheckUser { deleteCheckUser(input: { clientMutationId: \"1\", id: #{u.id} }) { success } }"
     post :create, params: { query: query, team: @team.slug }
     assert_response :success
@@ -969,7 +969,7 @@ class GraphqlControllerTest < ActionController::TestCase
     User.stubs(:current).returns(nil)
     query = "mutation userDisconnectLoginAccount { userDisconnectLoginAccount(input: { clientMutationId: \"1\", provider: \"#{a.provider}\", uid: \"#{a.uid}\" }) { success } }"
     post :create, params: { query: query, team: @team.slug }
-    assert_response 404
+    assert_response :success
     User.unstub(:current)
   end
 
@@ -1084,7 +1084,7 @@ class GraphqlControllerTest < ActionController::TestCase
     create_team_user user: u, team: t, role: 'owner'
     authenticate_with_user(u)
     # media verification status
-    statuses = '{\"label\":\"Verification Status\",\"default\":\"1\",\"active\":\"2\",\"statuses\":[{\"id\":\"1\",\"label\":\"1\",\"description\":\"\",\"completed\":\"\",\"style\":{\"color\":\"#f71f40\",\"backgroundColor\":\"#f71f40\",\"borderColor\":\"#f71f40\"}},{\"id\":\"2\",\"label\":\"2\",\"description\":\"\",\"completed\":\"\",\"style\":{\"color\":\"#e3dc1c\",\"backgroundColor\":\"#e3dc1c\",\"borderColor\":\"#e3dc1c\"}},{\"id\":\"3\",\"label\":\"3\",\"description\":\"\",\"completed\":\"1\",\"style\":{\"color\":\"#000000\",\"backgroundColor\":\"#000000\",\"borderColor\":\"#000000\"}}]}'
+    statuses = '{\"label\":\"Verification Status\",\"default\":\"1\",\"active\":\"2\",\"statuses\":[{\"id\":\"1\",\"label\":\"1\",\"description\":\"\",\"style\":{\"color\":\"#f71f40\",\"backgroundColor\":\"#f71f40\",\"borderColor\":\"#f71f40\"}},{\"id\":\"2\",\"label\":\"2\",\"description\":\"\",\"style\":{\"color\":\"#e3dc1c\",\"backgroundColor\":\"#e3dc1c\",\"borderColor\":\"#e3dc1c\"}},{\"id\":\"3\",\"label\":\"3\",\"description\":\"\",\"style\":{\"color\":\"#000000\",\"backgroundColor\":\"#000000\",\"borderColor\":\"#000000\"}}]}'
     query = 'mutation { updateTeam(input: { clientMutationId: "1", id: "' + id + '", add_media_verification_statuses: "' + statuses + '" }) { team { id } } }'
     post :create, params: { query: query, team: t.slug }
     assert_response :success

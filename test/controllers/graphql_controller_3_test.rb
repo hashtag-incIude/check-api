@@ -311,7 +311,7 @@ class GraphqlController3Test < ActionController::TestCase
     invalid_uid = u.id + rand(10..100)
     query = "mutation generateTwoFactorBackupCodes { generateTwoFactorBackupCodes(input: { clientMutationId: \"1\", id: #{invalid_uid} }) { success, codes } }"
     post :create, params: { query: query, team: t.slug }
-    assert_response 404
+    assert_response :success
     # Enable/Disable 2FA
     query = "mutation userTwoFactorAuthentication {userTwoFactorAuthentication(input: { clientMutationId: \"1\", id: #{u.id}, otp_required: #{true}, password: \"test1234\", qrcode: \"#{u.current_otp}\" }) { success }}"
     post :create, params: { query: query, team: t.slug }
@@ -324,7 +324,7 @@ class GraphqlController3Test < ActionController::TestCase
     # Disable with invalid uid
     query = "mutation userTwoFactorAuthentication {userTwoFactorAuthentication(input: { clientMutationId: \"1\", id: #{invalid_uid}, otp_required: #{false}, password: \"test1234\" }) { success }}"
     post :create, params: { query: query, team: t.slug }
-    assert_response 404
+    assert_response :success
   end
 
   test "should return project medias with provided URL that user has access to" do
@@ -675,50 +675,50 @@ class GraphqlController3Test < ActionController::TestCase
 
   test "should set smooch user slack channel url in background" do
     Sidekiq::Testing.fake! do
-        create_annotation_type_and_fields('Smooch User', {
-            'Data' => ['JSON', false],
-            'Slack Channel Url' => ['Text', true]
-        })
-        u = create_user
-        t = create_team
-        create_team_user team: t, user: u, role: 'owner'
-        p = create_project team: t
-        author_id = random_string
-        set_fields = { smooch_user_data: { id: author_id }.to_json }.to_json
-        d = create_dynamic_annotation annotated: p, annotation_type: 'smooch_user', set_fields: set_fields
-        Sidekiq::Worker.drain_all
-        assert_equal 0, Sidekiq::Worker.jobs.size
-        authenticate_with_token
-        url = random_url
-        query = 'mutation { updateDynamicAnnotationSmoochUser(input: { clientMutationId: "1", id: "' + d.graphql_id + '", ids: ["' + d.graphql_id + '"], set_fields: "{\"smooch_user_slack_channel_url\":\"' + url + '\"}" }) { project { dbid } } }'
-        post :create, params: { query: query }
-        assert_response :success
-        assert_equal 1, Sidekiq::Worker.jobs.size
-        assert_nil d.reload.get_field_value('smooch_user_slack_channel_url')
-        # execute job and check that url was set
-        Sidekiq::Worker.drain_all
-        assert_equal url, d.get_field_value('smooch_user_slack_channel_url')
-        # check that cache key exists
-        key = "SmoochUserSlackChannelUrl:Team:#{d.team_id}:#{author_id}"
-        assert_equal url, Rails.cache.read(key)
-        # test using a new mutation `smoochBotAddSlackChannelUrl`
-        Sidekiq::Worker.drain_all
-        assert_equal 0, Sidekiq::Worker.jobs.size
-        url2 = random_url
-        query = 'mutation { smoochBotAddSlackChannelUrl(input: { clientMutationId: "1", id: "' + d.id.to_s + '", set_fields: "{\"smooch_user_slack_channel_url\":\"' + url2 + '\"}" }) { annotation { dbid } } }'
-        post :create, params: { query: query }
-        assert_response :success
-        assert_equal 1, Sidekiq::Worker.jobs.size
-        assert_equal url, d.reload.get_field_value('smooch_user_slack_channel_url')
-        # execute job and check that url was set
-        Sidekiq::Worker.drain_all
-        assert_equal url2, d.get_field_value('smooch_user_slack_channel_url')
-        # check that cache key exists
-        assert_equal url2, Rails.cache.read(key)
-        # call mutation with non existing id
-        query = 'mutation { smoochBotAddSlackChannelUrl(input: { clientMutationId: "1", id: "99999", set_fields: "{\"smooch_user_slack_channel_url\":\"' + url2 + '\"}" }) { annotation { dbid } } }'
-        post :create, params: { query: query }
-        assert_response 404
+      create_annotation_type_and_fields('Smooch User', {
+          'Data' => ['JSON', false],
+          'Slack Channel Url' => ['Text', true]
+      })
+      u = create_user
+      t = create_team
+      create_team_user team: t, user: u, role: 'owner'
+      p = create_project team: t
+      author_id = random_string
+      set_fields = { smooch_user_data: { id: author_id }.to_json }.to_json
+      d = create_dynamic_annotation annotated: p, annotation_type: 'smooch_user', set_fields: set_fields
+      Sidekiq::Worker.drain_all
+      assert_equal 0, Sidekiq::Worker.jobs.size
+      authenticate_with_token
+      url = random_url
+      query = 'mutation { updateDynamicAnnotationSmoochUser(input: { clientMutationId: "1", id: "' + d.graphql_id + '", ids: ["' + d.graphql_id + '"], set_fields: "{\"smooch_user_slack_channel_url\":\"' + url + '\"}" }) { project { dbid } } }'
+      post :create, params: { query: query }
+      assert_response :success
+      assert_equal 1, Sidekiq::Worker.jobs.size
+      assert_nil d.reload.get_field_value('smooch_user_slack_channel_url')
+      # execute job and check that url was set
+      Sidekiq::Worker.drain_all
+      assert_equal url, d.get_field_value('smooch_user_slack_channel_url')
+      # check that cache key exists
+      key = "SmoochUserSlackChannelUrl:Team:#{d.team_id}:#{author_id}"
+      assert_equal url, Rails.cache.read(key)
+      # test using a new mutation `smoochBotAddSlackChannelUrl`
+      Sidekiq::Worker.drain_all
+      assert_equal 0, Sidekiq::Worker.jobs.size
+      url2 = random_url
+      query = 'mutation { smoochBotAddSlackChannelUrl(input: { clientMutationId: "1", id: "' + d.id.to_s + '", set_fields: "{\"smooch_user_slack_channel_url\":\"' + url2 + '\"}" }) { annotation { dbid } } }'
+      post :create, params: { query: query }
+      assert_response :success
+      assert_equal 1, Sidekiq::Worker.jobs.size
+      assert_equal url, d.reload.get_field_value('smooch_user_slack_channel_url')
+      # execute job and check that url was set
+      Sidekiq::Worker.drain_all
+      assert_equal url2, d.get_field_value('smooch_user_slack_channel_url')
+      # check that cache key exists
+      assert_equal url2, Rails.cache.read(key)
+      # call mutation with non existing id
+      query = 'mutation { smoochBotAddSlackChannelUrl(input: { clientMutationId: "1", id: "99999", set_fields: "{\"smooch_user_slack_channel_url\":\"' + url2 + '\"}" }) { annotation { dbid } } }'
+      post :create, params: { query: query }
+      assert_response :success
     end
   end
 
