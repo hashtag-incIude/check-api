@@ -129,7 +129,7 @@ class TeamTaskTest < ActiveSupport::TestCase
         assert_no_difference 'Annotation.where(annotation_type: "task").count' do
           create_team_task team_id: t.id, project_ids: [p.id]
         end
-        assert_nothing_raised RuntimeError do
+        assert_nothing_raised do
           tt.destroy
         end
       end
