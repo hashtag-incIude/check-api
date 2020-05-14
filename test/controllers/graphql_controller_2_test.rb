@@ -368,10 +368,10 @@ class GraphqlController2Test < ActionController::TestCase
     t = create_team name: 'foo'
     User.current = u
 
-    assert_nil GraphqlCrudOperations.define_conditional_returns(t)[:team_userEdge]
+    assert_nil Mutations::GraphqlCrudOperations.define_conditional_returns(t)[:team_userEdge]
 
     tu = create_team_user user: u, team: t
-    assert_equal tu, GraphqlCrudOperations.define_conditional_returns(t)[:team_userEdge].node
+    assert_equal tu, Mutations::GraphqlCrudOperations.define_conditional_returns(t)[:team_userEdge].node
 
     User.current = nil
   end

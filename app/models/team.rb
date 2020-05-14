@@ -83,7 +83,7 @@ class Team < ApplicationRecord
 
   # FIXME Source should be using concern HasImage
   # which automatically adds a member attribute `file`
-  # which is used by GraphqlCrudOperations
+  # which is used by Mutations::GraphqlCrudOperations
   def file=(file)
     self.logo = file if file.respond_to?(:content_type)
   end
