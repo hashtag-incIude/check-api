@@ -73,5 +73,7 @@ module Check
     config.active_record.belongs_to_required_by_default = false
 
     config.active_record.cache_versioning = false
+
+    config.autoloader = :classic # FIXME: Move to Zeitwerk mode
   end
 end
