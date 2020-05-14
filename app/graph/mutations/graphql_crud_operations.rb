@@ -1,4 +1,4 @@
-class Mutations::GraphqlCrudOperations
+class GraphqlCrudOperations
   def self.safe_save(obj, attrs, parents = [], inputs = {})
     attrs.each do |key, value|
       method = key == 'clientMutationId' ? 'client_mutation_id=' : "#{key}="
@@ -8,7 +8,7 @@ class Mutations::GraphqlCrudOperations
     obj.save!
 
     name = obj.class_name.underscore
-    { name.to_sym => obj }.merge(Mutations::GraphqlCrudOperations.define_returns(obj, inputs, parents))
+    { name.to_sym => obj }.merge(GraphqlCrudOperations.define_returns(obj, inputs, parents))
   end
 
   def self.define_returns(obj, inputs, parents)
@@ -23,7 +23,7 @@ class Mutations::GraphqlCrudOperations
         ret[parent_name.to_sym] = parent
       end
     end
-    ret.merge(Mutations::GraphqlCrudOperations.define_conditional_returns(obj))
+    ret.merge(GraphqlCrudOperations.define_conditional_returns(obj))
   end
 
   def self.define_conditional_returns(obj)
@@ -42,7 +42,7 @@ class Mutations::GraphqlCrudOperations
       ret["#{method}Edge".to_sym] = GraphQL::Relay::Edge.between(version, obj.annotated) unless version.nil?
     end
 
-    ret = ret.merge(Mutations::GraphqlCrudOperations.get_affected_ids(obj))
+    ret = ret.merge(GraphqlCrudOperations.get_affected_ids(obj))
 
     ret
   end
@@ -153,7 +153,7 @@ class Mutations::GraphqlCrudOperations
   def self.update(_type, inputs, ctx, parents = [])
     obj = inputs[:id] ? self.object_from_id_and_context(inputs[:id], ctx) : nil
     obj = self.prepopulate_object(obj, inputs) if inputs[:ids]
-    returns = (obj.nil? || !inputs[:ids]) ? {} : Mutations::GraphqlCrudOperations.define_returns(obj, inputs, parents)
+    returns = (obj.nil? || !inputs[:ids]) ? {} : GraphqlCrudOperations.define_returns(obj, inputs, parents)
     self.crud_operation('update', obj, inputs, ctx, parents, returns)
   end
 
@@ -299,9 +299,9 @@ class Mutations::GraphqlCrudOperations
 
       return_field type.to_sym, klass
       return_field "#{type}Edge".to_sym, klass.edge_type
-      Mutations::GraphqlCrudOperations.define_parent_returns(parents).each{ |field_name, field_class| return_field(field_name, field_class) }
+      GraphqlCrudOperations.define_parent_returns(parents).each{ |field_name, field_class| return_field(field_name, field_class) }
 
-      resolve -> (_root, inputs, ctx) { Mutations::GraphqlCrudOperations.send(action, type, inputs, ctx, parents) }
+      resolve -> (_root, inputs, ctx) { GraphqlCrudOperations.send(action, type, inputs, ctx, parents) }
     end
   end
 
@@ -324,9 +324,9 @@ class Mutations::GraphqlCrudOperations
       return_field :deletedId, types.ID
       return_field :affectedIds, types[types.ID]
 
-      Mutations::GraphqlCrudOperations.define_parent_returns(parents).each{ |field_name, field_class| return_field(field_name, field_class) }
+      GraphqlCrudOperations.define_parent_returns(parents).each{ |field_name, field_class| return_field(field_name, field_class) }
 
-      resolve -> (_root, inputs, ctx) { Mutations::GraphqlCrudOperations.destroy(inputs, ctx, parents) }
+      resolve -> (_root, inputs, ctx) { GraphqlCrudOperations.destroy(inputs, ctx, parents) }
     end
   end
 
@@ -343,7 +343,7 @@ class Mutations::GraphqlCrudOperations
 
   def self.define_crud_operations(type, create_fields, update_fields = {}, parents = [])
     update_fields = create_fields if update_fields.empty?
-    [Mutations::GraphqlCrudOperations.define_create(type, create_fields, parents), Mutations::GraphqlCrudOperations.define_update(type, update_fields, parents), Mutations::GraphqlCrudOperations.define_destroy(type, parents)]
+    [GraphqlCrudOperations.define_create(type, create_fields, parents), GraphqlCrudOperations.define_update(type, update_fields, parents), GraphqlCrudOperations.define_destroy(type, parents)]
   end
 
   def self.define_default_type(&block)
@@ -446,7 +446,7 @@ class Mutations::GraphqlCrudOperations
           pid = project.nil? ? 0 : project.id
           Project.current = project
           objid = class_name.belonged_to_project(objid, pid, tid) || 0
-          Mutations::GraphqlCrudOperations.load_if_can(class_name, objid, ctx)
+          GraphqlCrudOperations.load_if_can(class_name, objid, ctx)
         end
       end
     end
@@ -464,7 +464,7 @@ class Mutations::GraphqlCrudOperations
 
       field :id, !types.ID do resolve -> (annotation, _args, _ctx) { annotation.relay_id(type) } end
 
-      Mutations::GraphqlCrudOperations.define_annotation_fields.each { |name| field name, types.String }
+      GraphqlCrudOperations.define_annotation_fields.each { |name| field name, types.String }
 
       field :permissions, types.String do
         resolve -> (annotation, _args, ctx) {
@@ -483,8 +483,8 @@ class Mutations::GraphqlCrudOperations
           annotation.entity_objects
         }
       end
-      instance_exec :annotator, AnnotatorType, &Mutations::GraphqlCrudOperations.annotation_fields
-      instance_exec :version, VersionType, &Mutations::GraphqlCrudOperations.annotation_fields
+      instance_exec :annotator, AnnotatorType, &GraphqlCrudOperations.annotation_fields
+      instance_exec :version, VersionType, &GraphqlCrudOperations.annotation_fields
 
       connection :assignments, -> { UserType.connection_type } do
         resolve ->(annotation, _args, _ctx) {

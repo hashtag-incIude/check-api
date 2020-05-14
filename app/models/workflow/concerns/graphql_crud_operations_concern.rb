@@ -1,7 +1,7 @@
 module Workflow
   module Concerns
-    module Mutations::GraphqlCrudOperationsConcern
-      Mutations::GraphqlCrudOperations.class_eval do
+    module GraphqlCrudOperationsConcern
+      GraphqlCrudOperations.class_eval do
         singleton_class.send(:alias_method, :define_default_type_original, :define_default_type)
 
         def self.define_field_for_team_statuses
@@ -28,16 +28,16 @@ module Workflow
         end
 
         def self.define_default_type(&block)
-          Mutations::GraphqlCrudOperations.define_default_type_original do
+          GraphqlCrudOperations.define_default_type_original do
             ::Workflow::Workflow.workflows.each do |workflow|
               next if workflow.target != ProjectMedia
               id = workflow.id
 
               ['media', 'source'].each do |type|
-                instance_exec id, type, &Mutations::GraphqlCrudOperations.define_field_for_object_statuses
+                instance_exec id, type, &GraphqlCrudOperations.define_field_for_object_statuses
               end
 
-              instance_exec id, &Mutations::GraphqlCrudOperations.define_field_for_team_statuses
+              instance_exec id, &GraphqlCrudOperations.define_field_for_team_statuses
             end
 
             instance_eval(&block)

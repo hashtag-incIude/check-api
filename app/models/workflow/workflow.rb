@@ -57,7 +57,7 @@ module Workflow
     include ::Workflow::Concerns::CheckSearchConcern
     include ::Workflow::Concerns::DynamicAnnotationFieldConcern
     include ::Workflow::Concerns::DynamicConcern
-    include ::Workflow::Concerns::Mutations::GraphqlCrudOperationsConcern
+    include ::Workflow::Concerns::GraphqlCrudOperationsConcern
     include ::Workflow::Concerns::MediaSearchConcern
     include ::Workflow::Concerns::TargetConcern
     include ::Workflow::Concerns::TeamConcern
