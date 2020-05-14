@@ -1,4 +1,5 @@
 class Task < ApplicationRecord
+  include AnnotationBase::Association
   include AnnotationBase
   include HasJsonSchema
 

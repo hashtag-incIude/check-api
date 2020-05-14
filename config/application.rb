@@ -23,10 +23,9 @@ module Check
 
     config.autoload_paths << Rails.root.join('app', 'graph', 'mutations')
     config.autoload_paths << Rails.root.join('app', 'graph', 'types')
-
     config.autoload_paths << "#{config.root}/app/models/annotations"
     config.autoload_paths << "#{config.root}/app/models/search"
-    config.autoload_paths += %W(#{config.root}/lib)
+    config.autoload_paths << "#{config.root}/lib"
 
     config.action_mailer.delivery_method = :smtp
 
@@ -72,5 +71,7 @@ module Check
     config.load_defaults '6.0'
 
     config.active_record.belongs_to_required_by_default = false
+
+    config.active_record.cache_versioning = false
   end
 end

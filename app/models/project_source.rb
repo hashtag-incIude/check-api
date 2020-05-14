@@ -1,4 +1,5 @@
 class ProjectSource < ApplicationRecord
+  include AnnotationBase::Association
 
   attr_accessor :name
 

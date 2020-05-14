@@ -1,4 +1,6 @@
 class Team < ApplicationRecord
+  include AnnotationBase::Association
+
   after_create :create_team_partition, :add_user_to_team
 
   before_destroy :delete_created_bots

@@ -1,6 +1,7 @@
 class Account < ApplicationRecord
   include PenderData
   include CheckElasticSearch
+  include AnnotationBase::Association
 
   attr_accessor :source, :disable_es_callbacks, :disable_account_source_creation, :created_on_registration
 

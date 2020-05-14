@@ -1,4 +1,6 @@
 class Media < ApplicationRecord
+  include AnnotationBase::Association
+
   self.inheritance_column = :type
 
   attr_accessor :project_id, :project_object, :disable_es_callbacks

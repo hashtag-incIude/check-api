@@ -1,6 +1,7 @@
 class Source < ApplicationRecord
   attr_accessor :disable_es_callbacks
 
+  include AnnotationBase::Association
   include HasImage
   include CheckElasticSearch
   include CheckPusher

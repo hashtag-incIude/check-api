@@ -1,4 +1,5 @@
 class Project < ApplicationRecord
+  include AnnotationBase::Association
   include CheckPusher
   include ValidationsHelper
   include DestroyLater
