@@ -40,6 +40,7 @@ addons:
   - api
 bundler_args: "--jobs 3 --retry 3 --without nothing --path=/tmp/bundler"
 before_script:
+- rm -f db/schema.rb
 - cd test && ./setup-parallel-env.sh && cd -
 - bundle exec rails assets:precompile
 - RAILS_ENV=test bundle exec puma -w 3 -t 8:60 --preload -b tcp://127.0.0.1:3000 >/dev/null &
