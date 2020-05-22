@@ -693,10 +693,10 @@ class ProjectMediaTest < ActiveSupport::TestCase
     t = create_team
     p = create_project team: t
     pm = create_project_media project: p
-    stub_config('pender_url', 'https://pender.fake') do
+    stub_configs({ 'pender_url' => 'https://pender.fake' }) do
       assert_equal CONFIG['pender_url'] + '/api/medias.html?url=' + pm.full_url.to_s, pm.embed_url(false)
     end
-    stub_config('pender_url', 'https://pender.fake') do
+    stub_configs({ 'pender_url' => 'https://pender.fake' }) do
       assert_match /#{CONFIG['short_url_host']}/, pm.embed_url
     end
   end
@@ -717,14 +717,14 @@ class ProjectMediaTest < ActiveSupport::TestCase
     t = create_team private: false
     p = create_project team: t
     pm = create_project_media project: p
-    stub_config('checkdesk_base_url', 'https://checkmedia.org') do
+    stub_configs({ 'checkdesk_base_url' => 'https://checkmedia.org' }) do
       assert_equal "https://checkmedia.org/api/project_medias/#{pm.id}/oembed", pm.oembed_url
     end
 
     t = create_team private: true
     p = create_project team: t
     pm = create_project_media project: p
-    stub_config('checkdesk_base_url', 'https://checkmedia.org') do
+    stub_configs({ 'checkdesk_base_url' => 'https://checkmedia.org' }) do
       assert_equal "https://checkmedia.org/api/project_medias/#{pm.id}/oembed", pm.oembed_url
     end
   end
@@ -825,9 +825,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
     assert_equal 'Twitter', pm.provider
     c = create_claim_media
     pm = create_project_media media: c
-    stub_config('app_name', 'Check') do
-      assert_equal 'Check', pm.provider
-    end
+    assert_equal 'Check', pm.provider
   end
 
   test "should get published time for oEmbed" do
@@ -1023,6 +1021,10 @@ class ProjectMediaTest < ActiveSupport::TestCase
     p = create_project team: t
     u = create_user
     create_team_user team: t, user: u, role: 'owner'
+    t2 = create_team
+    p2 = create_project team: t2
+    p3 = create_project team: t2
+    create_team_user team: t2, user: u, role: 'owner'
     pender_url = CONFIG['pender_url_private'] + '/api/medias'
     media_url = 'http://www.facebook.com/meedan/posts/123456'
     media2_url = 'http://www.facebook.com/meedan/posts/456789'
@@ -1053,9 +1055,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
       end
     end
     # test move media to project with same source
-    p2 = create_project team: t
-    p3 = create_project team: t
-    with_current_user_and_team(u, t) do
+    with_current_user_and_team(u, t2) do
       pm = create_project_media project: p2, url: media_url
       pm2 = create_project_media project: p3, url: media2_url
       assert_nothing_raised do
@@ -1420,15 +1420,13 @@ class ProjectMediaTest < ActiveSupport::TestCase
 
   test "should not move media to active status if status is locked" do
     create_verification_status_stuff
-    stub_config('app_name', 'Check') do
-      pm = create_project_media
-      assert_equal 'undetermined', pm.last_verification_status
-      s = pm.last_verification_status_obj
-      s.locked = true
-      s.save!
-      create_task annotated: pm, disable_update_status: false
-      assert_equal 'undetermined', pm.reload.last_verification_status
-    end
+    pm = create_project_media
+    assert_equal 'undetermined', pm.last_verification_status
+    s = pm.last_verification_status_obj
+    s.locked = true
+    s.save!
+    create_task annotated: pm, disable_update_status: false
+    assert_equal 'undetermined', pm.reload.last_verification_status
   end
 
   test "should have status permission" do
@@ -2021,7 +2019,7 @@ class ProjectMediaTest < ActiveSupport::TestCase
   test "should clear caches when report is updated" do
     ProjectMedia.any_instance.unstub(:clear_caches)
     Sidekiq::Testing.inline! do
-      CcDeville.stubs(:clear_cache_for_url).times(3)
+      CcDeville.stubs(:clear_cache_for_url).times(6)
       pm = create_project_media
       pm.skip_clear_cache = false
       RequestStore.store[:skip_clear_cache] = false
@@ -2055,6 +2053,39 @@ class ProjectMediaTest < ActiveSupport::TestCase
     end
   end
 
+  test "should validate duplicate based on team" do
+    t = create_team
+    p = create_project team: t
+    t2 = create_team
+    p2 = create_project team: t2
+    # Create media in different team with no list
+    m = create_valid_media
+    create_project_media project: nil, team: t, media: m
+    assert_nothing_raised RuntimeError do
+      create_project_media project: nil, team: t2, url: m.url
+    end
+    # Try to add same item to list
+    assert_raises RuntimeError do
+      create_project_media project: p, url: m.url
+    end
+    # Create item in a list then try to add it via all items(with no list)
+    m2 = create_valid_media
+    create_project_media project: p, media: m2
+    assert_raises RuntimeError do
+      create_project_media project: nil, team: t, url: m2.url
+    end
+    # Add same item to list in different team
+    assert_nothing_raised RuntimeError do
+      create_project_media project: p2, url: m2.url
+    end
+    # create item in a list then try to add it to all items in different team
+    m3 = create_valid_media
+    create_project_media project: p, media: m3
+    assert_nothing_raised RuntimeError do
+      create_project_media team: t2, project: nil, url: m3.url
+    end
+  end
+
   test "should restore item from trash if not super admin" do
     t = create_team
     u = create_user
@@ -2070,5 +2101,12 @@ class ProjectMediaTest < ActiveSupport::TestCase
     end
     pm = ProjectMedia.find(pm.id)
     assert !pm.archived
+  end
+
+  test "should set media type for links" do
+    l = create_link
+    pm = create_project_media url: l.url
+    pm.send :set_media_type
+    assert_equal 'Link', pm.media_type
   end
 end

@@ -137,11 +137,16 @@ module AnnotationBase
         project_id = self.annotated&.project_id
         users = User.joins(:assignments).where('assignments.assigned_id' => project_id, 'assignments.assigned_type' => 'Project').map(&:id).uniq
       end
+      users = TeamUser.where(team_id: self.team_id, user_id: users, status: 'member').map(&:user_id) unless users.blank?
       Assignment.delay.bulk_assign(YAML::dump(self), users) unless users.empty?
     end
 
     def parsed_fragment
-      begin URI.media_fragment(self.fragment) rescue {} end
+      begin
+        URI.media_fragment(self.fragment)
+      rescue
+        {}
+      end
     end
 
     def custom_permissions(ability = nil)
