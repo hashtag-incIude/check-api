@@ -19,7 +19,7 @@ WORKDIR /app
 COPY Gemfile /app/Gemfile
 COPY Gemfile.lock /app/Gemfile.lock
 RUN echo "gem: --no-rdoc --no-ri" > ~/.gemrc \
-    gem install bundler -v "< 2.0" \
+    gem install bundler \
     && bundle install --jobs 20 --retry 5
 COPY . /app
 
